@@ -11,7 +11,7 @@ import type { AlertType } from "../../common/alerts/useMyAlert";
 import { useRouter } from "vue-router";
 
 export const useRegister = (
-  handleAlert: (title: string, msg?: string, type?: AlertType) => void
+  handleAlert: (title: string, msg?: string, type?: AlertType) => void,
 ) => {
   /* stores */
   const userStore = useUserStore();
@@ -117,8 +117,9 @@ export const useRegister = (
 
       await new Promise((resolve) => setTimeout(resolve, 700));
 
-      router.push({ name: "Groups" });
+      router.push({ name: "groups" });
     } catch (error) {
+      console.log(error);
       handleAlert("ℹ️ Ocurrio un error inesperado.");
     }
   };

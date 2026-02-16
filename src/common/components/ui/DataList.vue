@@ -1,8 +1,8 @@
 <template>
-    <div class="bg-gray-900 rounded-lg">
+    <div class="bg-[#1a1d26] rounded-lg">
 
         <!-- Header (desktop) -->
-        <div class="hidden md:grid gap-x-6 px-6 py-3 border-b border-white/10 text-xs font-semibold text-gray-400 uppercase"
+        <div class="hidden md:grid gap-x-6 px-6 py-3 border-b border-white/10 text-xs font-semibold text-slate-400 uppercase"
             :style="{ gridTemplateColumns: gridTemplate }">
             <span v-for="col in columns" :key="col.key">
                 {{ col.label }}
@@ -25,7 +25,7 @@
                         <!-- Column slot -->
                         <slot :name="col.key" :item="item">
                             <!-- Default renderer -->
-                            <p class="text-sm text-gray-300 truncate">
+                            <p class="text-sm text-slate-300 truncate">
                                 {{ item[col.key] }}
                             </p>
                         </slot>

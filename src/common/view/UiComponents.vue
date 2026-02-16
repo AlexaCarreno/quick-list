@@ -1,5 +1,5 @@
 <template>
-    <div class="p-5  h-dvh bg-[#12151c] text-white"">
+    <div class="pl-5 pr-5 sm:pt-3 md:p-5  text-white"">
         <TeacherList :teachers="teachers" />
     </div>
 </template>

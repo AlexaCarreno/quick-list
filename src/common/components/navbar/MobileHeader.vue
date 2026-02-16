@@ -2,7 +2,7 @@
   <!-- 📱 Header Mobile - Solo visible en mobile -->
   <header
     v-if="isMobile"
-    class="fixed top-0 left-0 right-0 z-0 bg-[#1a1d26] border-b border-gray-800 shadow-lg"
+    class="fixed top-0 left-0 right-0 z-[100] bg-[#1a1d26] border-b border-gray-800 shadow-lg"
   >
     <div class="flex items-center justify-between px-4 py-3">
       <!-- 🔘 Botón hamburguesa -->

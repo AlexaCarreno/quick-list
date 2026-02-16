@@ -1,44 +1,24 @@
 <template>
-  <div class="min-h-screen flex bg-[#12151c] text-white">
+  <div class="h-screen overflow-hidden flex bg-[#12151c] text-white">
     <!-- 📱 Header Mobile -->
-    <MobileHeader
-      v-if="isMobile"
-      :header-name="appName"
-      :name="user?.name!"
-      :email="user?.email!"
-      :avatar="userAvatar"
-      :is-mobile="isMobile"
-      @toggle-menu="isMobileMenuOpen = !isMobileMenuOpen"
-    />
+    <MobileHeader v-if="isMobile" :header-name="appName" :name="user?.name!" :email="user?.email!" :avatar="userAvatar"
+      :is-mobile="isMobile" @toggle-menu="isMobileMenuOpen = !isMobileMenuOpen" />
     <MobileDrawer v-if="isMobile" v-model="isMobileMenuOpen" />
 
     <!-- 🧭 Sidebar -->
-    <Sidebar
-      v-if="!isMobile"
-      :header-name="appName"
-      :name="user?.name!"
-      :email="user?.email!"
-      :avatar="userAvatar"
-      v-model:is-sidebar-open="isSidebarOpen"
-      v-model:is-mobile="isMobile"
-      v-model:is-mobile-menu-open="isMobileMenuOpen"
-    />
+    <Sidebar v-if="!isMobile" :header-name="appName" :name="user?.name!" :email="user?.email!" :avatar="userAvatar"
+      v-model:is-sidebar-open="isSidebarOpen" v-model:is-mobile="isMobile"
+      v-model:is-mobile-menu-open="isMobileMenuOpen" />
 
     <!-- 🧩 Contenido principal -->
-    <main
-      class="flex-1 transition-all duration-300 ease-in-out"
-      :class="{
-        'ml-0': isMobile,
-        'ml-64': !isMobile && isSidebarOpen,
-        'ml-16': !isMobile && !isSidebarOpen,
-      }"
-    >
-      <div
-        class="min-h-screen p-4 sm:p-6 sm:py-15 lg:p-8"
-        :class="{
-          'pt-20': isMobile,
-        }"
-      >
+    <main class="flex-1 transition-all duration-300 ease-in-out overflow-y-auto overscroll-none" :class="{
+      'ml-0': isMobile,
+      'ml-64': !isMobile && isSidebarOpen,
+      'ml-16': !isMobile && !isSidebarOpen,
+    }">
+      <div class="pb-5 h-full" :class="{
+        'pt-20': isMobile,
+      }">
         <!-- 🔁 Aquí se inyectarán las vistas de tus rutas hijas -->
         <router-view />
       </div>

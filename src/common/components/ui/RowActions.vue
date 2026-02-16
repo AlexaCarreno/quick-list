@@ -1,13 +1,13 @@
 <template>
-    <div class="relative inline-block" ref="container">
-        <button class="p-2 rounded hover:bg-white/10" @click.stop="$emit('toggle')">
+    <div class="relative w-full inline-block" ref="container">
+        <button class="p-2 ml-2  rounded hover:bg-white/10" @click.stop="$emit('toggle')">
             ⋮
         </button>
 
         <div v-if="open"
             class="absolute right-0 top-full mt-2 w-40 bg-gray-800 border border-white/10 rounded-lg shadow-lg z-50">
             <button v-for="action in actions" :key="action.label"
-                class="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-white/10"
+                class="w-full text-center px-4 py-2 text-sm text-gray-200 hover:bg-white/10"
                 @click="handleAction(action)">
                 {{ action.label }}
             </button>

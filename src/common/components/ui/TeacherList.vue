@@ -1,35 +1,35 @@
 <template>
-    <DataList :items="teachers" :columns="columns" grid-template="3fr 1fr 2fr 1fr 1fr 1fr auto" id-key="_id"
+    <DataList :items="teachers" :columns="columns" grid-template="3fr 1fr 2fr 1fr 1fr 1fr 1fr" id-key="_id"
         @row-click="onRowClick">
         <!-- MOBILE CARD -->
         <template #mobile="{ item }">
-            <div class="flex gap-x-4 justify-between cursor-pointer" @click.stop="openDetail(item)">
+            <div class="flex gap-x-4 justify-between items-center cursor-pointer" @click.stop="openDetail(item)">
 
                 <!-- Información -->
                 <div class="flex gap-x-4 flex-1 min-w-0">
-                    <img class="size-12 rounded-full bg-gray-800 object-cover" :src="config.apiBaseUrl + item.photo" />
+                    <img class="size-12 rounded-full bg-slate-800 object-cover" :src="config.apiBaseUrl + item.photo" />
 
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold text-white">
                             {{ item.name }} {{ item.lastName }}
                         </p>
 
-                        <p class="text-xs text-gray-400 truncate">
+                        <p class="text-xs text-slate-400 truncate">
                             {{ item.email }}
                         </p>
 
-                        <p class="mt-1 text-xs text-gray-400">
+                        <p class="mt-1 text-xs text-slate-400">
                             Doc: {{ item.documentNumber }}
                         </p>
 
-                        <p class="text-xs text-gray-400 truncate">
+                        <p class="text-xs text-slate-400 truncate">
                             {{ item.professionalTitle }}
                         </p>
 
                         <div class="mt-2 flex items-center gap-x-2">
                             <span class="size-2 rounded-full"
                                 :class="item.state ? 'bg-emerald-500' : 'bg-red-500'"></span>
-                            <span class="text-xs text-gray-400">
+                            <span class="text-xs text-slate-400">
                                 {{ item.state ? "Activo" : "Inactivo" }}
                             </span>
                         </div>
@@ -51,12 +51,12 @@
         <!-- Usuario -->
         <template #user="{ item }">
             <div class="flex items-center gap-x-4 min-w-0">
-                <img class="size-10 rounded-full bg-gray-800 object-cover" :src="config.apiBaseUrl + item.photo" />
+                <img class="size-10 rounded-full bg-slate-800 object-cover" :src="config.apiBaseUrl + item.photo" />
                 <div class="min-w-0">
                     <p class="text-sm font-semibold text-white truncate">
                         {{ item.name }} {{ item.lastName }}
                     </p>
-                    <p class="text-xs text-gray-400 truncate">
+                    <p class="text-xs text-slate-400 truncate">
                         {{ item.email }}
                     </p>
                 </div>
@@ -65,7 +65,7 @@
 
         <!-- Edad -->
         <template #age="{ item }">
-            <p class="text-sm text-gray-300">
+            <p class="text-sm text-slate-300">
                 {{ calculateAge(item.birthday) }} años
             </p>
         </template>
@@ -74,7 +74,7 @@
         <template #state="{ item }">
             <div class="flex items-center gap-x-2">
                 <span class="size-2 rounded-full" :class="item.state ? 'bg-emerald-500' : 'bg-red-500'"></span>
-                <span class="text-sm text-gray-300">
+                <span class="text-sm text-slate-300">
                     {{ item.state ? "Activo" : "Inactivo" }}
                 </span>
             </div>
@@ -82,7 +82,7 @@
 
         <!-- Fecha -->
         <template #createdAt="{ item }">
-            <p class="text-sm text-gray-400">
+            <p class="text-sm text-slate-400">
                 {{ formatDate(item.createdAt) }}
             </p>
         </template>
@@ -136,7 +136,7 @@ const columns = [
     { label: "Edad", key: "age" },
     { label: "Estado", key: "state" },
     { label: "Creado", key: "createdAt" },
-    { label: "", key: "actions" }
+    { label: "Actions", key: "actions" }
 ]
 
 const formatDate = (date: string) => {
