@@ -1,7 +1,7 @@
 <template>
   <div class="component-name">
     <!-- 💡 Contenido del componente -->
-    <h1> Grupos</h1>
+     <h1> Asistencia</h1>
   </div>
 </template>
 
@@ -9,5 +9,6 @@
 
 </script>
 
-<style scoped></style>
- 
+<style scoped>
+
+</style>

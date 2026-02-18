@@ -5,6 +5,17 @@ import {
 } from "vue-router";
 import { useAuthStore } from "../common/stores/authStore";
 import { usePermissionStore } from "../common/stores/permissionsStore";
+import { NAVIGATION_ITEMS } from "../common/config/navigation.config";
+
+const protectedRoutes: RouteRecordRaw[] = NAVIGATION_ITEMS.map((item) => ({
+  path: item.path.replace("/", ""),
+  name: item.name,
+  component: item.component,
+  meta: {
+    resource: item.resource,
+    action: item.action,
+  },
+}));
 
 const routes: RouteRecordRaw[] = [
   // register routes here
@@ -21,38 +32,16 @@ const routes: RouteRecordRaw[] = [
     meta: { public: true },
   },
   {
-    path: "/ui",
-    name: "ui",
-    component: () => import("../common/view/UiComponents.vue"),
-    meta: { public: true },
-  },
-  {
     path: "/",
     name: "app",
     component: () => import("../common/layouts/AppContainer.vue"),
     children: [
       {
         path: "",
-        redirect: { name: "users" },
+        name: "root",
+        component: () => import("../common/view/EmptyView.vue"),
       },
-      {
-        path: "users",
-        name: "users",
-        component: () => import("../users/view/UsersView.vue"),
-        meta: {
-          resource: "users",
-          action: "read",
-        },
-      },
-      {
-        path: "groups",
-        name: "groups",
-        component: () => import("../prueba/Groups.vue"),
-        meta: {
-          resource: "groups",
-          action: "read",
-        },
-      },
+      ...protectedRoutes,
     ],
   },
   {
@@ -100,32 +89,27 @@ router.beforeEach(async (to, _from, next) => {
 
     // Si no hay token pero no es ruta pública, intentar refrescar
     if (!isAuthenticated && !isPublic) {
-      console.log("⚠️ No hay token, intentando refrescar...");
       try {
         const { tryRefreshToken } = await import("../api/api-client");
         const refreshed = await tryRefreshToken();
 
         if (refreshed) {
-          console.log("✅ Token refrescado exitosamente");
           isAuthenticated = true;
         } else {
-          console.log("❌ No se pudo refrescar el token");
+          console.log("🔒 No autenticado");
           return next({ name: "login" });
         }
       } catch (error) {
-        console.error("❌ Error al intentar refrescar:", error);
+        console.error("❌ Error refresh:", error);
         return next({ name: "login" });
       }
     }
 
-    if (isAuthenticated) {
-      console.log("✅ Intentando cargar permisos...");
+    if (isAuthenticated && !permissionStore.loaded) {
       try {
         await permissionStore.loadPermissions();
-        console.log("✅ Permisos cargados");
       } catch (error) {
         console.error("❌ Error al cargar permisos:", error);
-        console.log("Token actual:", authStore.accessToken);
 
         authStore.clearAccesstoken();
         permissionStore.clear();
@@ -133,13 +117,15 @@ router.beforeEach(async (to, _from, next) => {
       }
     }
 
-    if (isAuthenticated && to.path === "/") {
-      if (permissionStore.can("groups", "read")) {
-        return next({ name: "groups" });
+    if (isAuthenticated && to.name === "root") {
+      const firstAllowed = NAVIGATION_ITEMS.find((item) =>
+        permissionStore.can(item.resource, item.action),
+      );
+
+      if (firstAllowed) {
+        return next({ name: firstAllowed.name });
       }
-      if (permissionStore.can("users", "read")) {
-        return next({ name: "users" });
-      }
+
       return next("/not-found");
     }
 

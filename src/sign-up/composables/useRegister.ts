@@ -117,7 +117,7 @@ export const useRegister = (
 
       await new Promise((resolve) => setTimeout(resolve, 700));
 
-      router.push({ name: "groups" });
+      router.push({ name: "root" });
     } catch (error) {
       console.log(error);
       handleAlert("ℹ️ Ocurrio un error inesperado.");

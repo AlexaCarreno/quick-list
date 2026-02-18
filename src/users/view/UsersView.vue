@@ -151,9 +151,9 @@ onMounted(() => {
     {
       _id: "a2",
       userId: "admin2",
-      name: "Laura",
-      lastName: "Martínez",
-      email: "laura.admin@gmail.com",
+      name: "Angie",
+      lastName: "Carreño",
+      email: "angie.admin@gmail.com",
       state: false,
       createdAt: "2026-02-10T08:00:00.000Z"
     }

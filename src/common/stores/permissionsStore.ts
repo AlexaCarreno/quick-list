@@ -100,11 +100,29 @@ export const usePermissionStore = defineStore("permission", () => {
   // getters
   const hasRole = (role: string) => roles.value.includes(role);
 
+  const hasAnyRole = (allowedRoles: string[]) => {
+    return allowedRoles.some((role) => roles.value.includes(role));
+  };
+
   const can = (resource: string, action: string) => {
     return permissions.value.some(
       (p) =>
         p.resource === resource &&
         (p.action === action || p.action === "manage"),
+    );
+  };
+
+  const canAccessModule = (resource: string) => {
+    // admin ve todo
+    if (roles.value.includes("admin")) return true;
+
+    return permissions.value.some(
+      (p) =>
+        p.resource === resource &&
+        (p.action === "create" ||
+          p.action === "update" ||
+          p.action === "delete" ||
+          p.action === "manage"),
     );
   };
 
@@ -121,6 +139,8 @@ export const usePermissionStore = defineStore("permission", () => {
 
     // getters
     hasRole,
+    hasAnyRole,
     can,
+    canAccessModule,
   };
 });

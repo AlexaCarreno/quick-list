@@ -105,10 +105,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch } from "vue";
-import { usePermissionStore } from "../common/stores/permissionsStore";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { useNavigation } from "../common/composables/useNavigation";
 
-const permissionStore = usePermissionStore();
+const { menuItems } = useNavigation()
 
 const props = defineProps({
   headerName: { type: String, required: true },
@@ -138,26 +138,8 @@ watch(isSidebarOpen, (val) => emit("update:isSidebarOpen", val));
 watch(isMobile, (val) => emit("update:isMobile", val));
 watch(isMobileMenuOpen, (val) => emit("update:isMobileMenuOpen", val));
 
-const allMenuItems = [
-  {
-    label: "Groups",
-    path: "/groups",
-    resource: "groups",
-    action: "read",
-  },
-  {
-    label: "Users",
-    path: "/users",
-    resource: "users",
-    action: "read",
-  },
-];
 
-const menuItems = computed(() => {
-  return allMenuItems.filter((item) =>
-    permissionStore.can(item.resource, item.action),
-  );
-});
+
 
 const handleResize = () => {
   const mobile = window.innerWidth < 768;

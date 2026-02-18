@@ -50,7 +50,7 @@ export const useLogin = (
 
       await new Promise((resolve) => setTimeout(resolve, 700));
 
-      router.push({ name: "groups" });
+      router.push({ name: "root" });
     } catch (error) {
       console.error("Error al hacer login:", error);
       handleAlert("Error inesperado, por favor intenta de nuevo. ❌");
