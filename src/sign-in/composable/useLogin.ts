@@ -1,17 +1,16 @@
 import { useRouter } from "vue-router";
 import { apiFetch } from "../../api/api-client";
-import type { AlertType } from "../../common/alerts/useMyAlert";
+import { useAlert } from "../../common/alerts/useMyAlert";
 import { useAuthStore } from "../../common/stores/authStore";
 import { useUserStore } from "../../common/stores/userStore";
 
-export const useLogin = (
-  handleAlert: (title: string, msg?: string, type?: AlertType) => void,
-) => {
+export const useLogin = () => {
   //----------- properties -----------//
+
+  const { showAlert } = useAlert();
 
   const authStore = useAuthStore();
   const userStore = useUserStore();
-
   const router = useRouter();
 
   //----------- methods -----------//
@@ -25,7 +24,7 @@ export const useLogin = (
 
       if (!result.success) {
         const message = result.error?.message || "Credenciales inválidas.";
-        handleAlert(`${message} ❌`);
+        showAlert(message, undefined, "error");
         return;
       }
 
@@ -40,20 +39,20 @@ export const useLogin = (
         let message =
           myResult.error?.message ||
           "Ocurrio un error al obtener la informacion del usuario.";
-        handleAlert(`${message} ❌`);
+        showAlert(message, undefined, "error");
         return;
       }
 
       userStore.setUser(myResult.data.user);
 
-      handleAlert("Bienvenido a QuickList ✅");
+      showAlert("Bienvenido a QuickList", undefined, "success");
 
       await new Promise((resolve) => setTimeout(resolve, 700));
 
       router.push({ name: "root" });
     } catch (error) {
       console.error("Error al hacer login:", error);
-      handleAlert("Error inesperado, por favor intenta de nuevo. ❌");
+      showAlert("Error inesperado, intenta nuevamente", undefined, "error");
     }
   };
 

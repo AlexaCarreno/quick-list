@@ -3,40 +3,19 @@
     <h2 class="text-3xl text-blue-400 text-center mb-6">Paso 2</h2>
 
     <!-- email input -->
-    <InputForm
-      v-model="form.email"
-      name="email"
-      label="Correo Electrónico"
-      type="email"
-      :required="true"
-    />
+    <InputForm v-model="form.email" name="email" label="Correo Electrónico" type="email" :required="true" />
 
     <!-- password input -->
-    <InputForm
-      v-model="form.password"
-      name="password"
-      label="Contraseña"
-      type="password"
-      :required="true"
-    />
+    <InputForm v-model="form.password" name="password" label="Contraseña" type="password" :required="true" />
 
     <!-- password confirm input -->
-    <InputForm
-      v-model="form.passwordConfirm"
-      name="passwordConfirm"
-      label="Confirmar Contraseña"
-      type="password"
-      :required="true"
-    />
+    <InputForm v-model="form.passwordConfirm" name="passwordConfirm" label="Confirmar Contraseña" type="password"
+      :required="true" />
 
     <!-- button -->
     <div class="flex space-x-2">
-      <ButtonForm class="mb-2 mt-3" type="button" @click="previousStep"
-        >Paso anterior</ButtonForm
-      >
-      <ButtonForm class="mb-2 mt-3" type="submit" :disabled="isSubmitDisabled"
-        >Siguiente paso</ButtonForm
-      >
+      <ButtonForm class="mb-2 mt-3" type="button" @click="previousStep">Paso anterior</ButtonForm>
+      <ButtonForm class="mb-2 mt-3" type="submit" :disabled="isSubmitDisabled">Siguiente paso</ButtonForm>
     </div>
   </form>
 </template>
@@ -45,6 +24,9 @@
 import { computed, ref, watch } from "vue";
 import InputForm from "../../common/components/inputs/InputForm.vue";
 import ButtonForm from "../../common/components/inputs/ButtonForm.vue";
+import { useAlert } from "../../common/alerts/useMyAlert";
+
+const { showAlert } = useAlert()
 
 const isSubmitDisabled = ref(true);
 
@@ -78,13 +60,13 @@ const handleSubmit = () => {
 
   // Validar campos requeridos
   if (!email || !password || !passwordConfirm) {
-    alert("Por favor, complete todos los campos.");
+    showAlert("Por favor, complete todos los campos.", undefined, "warning");
     return; // Detener la ejecución si falta algún campo
   }
 
   // Validar que las contraseñas coincidan
   if (password !== passwordConfirm) {
-    alert("Las contraseñas no coinciden.");
+    showAlert("Las contraseñas no coinciden.", undefined, "error");
     return; // Detener la ejecución si las contraseñas no coinciden
   }
 

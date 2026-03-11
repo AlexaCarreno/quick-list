@@ -1,7 +1,7 @@
 <template>
   <div class="component-name">
     <!-- 💡 Contenido del componente -->
-     <h1> Asistencia cc</h1>
+    <h1> Admin Grupos</h1>
   </div>
 </template>
 
@@ -9,6 +9,5 @@
 
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
+ 

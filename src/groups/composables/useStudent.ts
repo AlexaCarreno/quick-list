@@ -1,10 +1,9 @@
 import { apiFetch } from "../../api/api-client";
-import type { AlertType } from "../../common/alerts/useMyAlert";
+import { useAlert } from "../../common/alerts/useMyAlert";
 import { useStudentStore } from "../stores/studentStore";
 
-export const useStudent = (
-  alertHandler: (title: string, msg?: string, type?: AlertType) => void
-) => {
+export const useStudent = () => {
+  const { showAlert } = useAlert();
   const studentStore = useStudentStore();
 
   const createStudent = async (groupId: string, payload: FormData) => {
@@ -14,12 +13,12 @@ export const useStudent = (
     });
 
     if (!result.success) {
-      alertHandler(result.error?.message);
+      showAlert(result.error?.message);
       return;
     }
 
     studentStore.addNewStudent(result.data);
-    alertHandler(`Creado exitosamente. ✅`);
+    showAlert(`Creado exitosamente. ✅`);
   };
 
   const loadStudentsFromDB = async (groupId: string) => {
@@ -28,10 +27,10 @@ export const useStudent = (
     });
 
     if (!result.success) {
-      alertHandler(
+      showAlert(
         `Problemas para obtener los estudiantes.`,
         undefined,
-        "warning"
+        "warning",
       );
       return;
     }
@@ -47,35 +46,39 @@ export const useStudent = (
     });
 
     if (!result.success) {
-      alertHandler(
+      showAlert(
         "Problemas para eliminar los estudiantes.",
         undefined,
-        "warning"
+        "warning",
       );
       return;
     }
     studentStore.removeStudents(userIds);
 
-    alertHandler(`Estudiantes eliminados exitosamente. ✅`);
+    showAlert(`Estudiantes eliminados exitosamente. ✅`);
   };
 
-  const updateStudent = async (groupId: string,studentId: string, payload: FormData) => {
+  const updateStudent = async (
+    groupId: string,
+    studentId: string,
+    payload: FormData,
+  ) => {
     const result = await apiFetch(`/group/${groupId}/students/${studentId}`, {
       method: "PUT",
       body: payload,
     });
 
     if (!result.success) {
-      alertHandler(
+      showAlert(
         "Problema para actualizar al estudiante.",
         undefined,
-        "warning"
+        "warning",
       );
       return;
     }
 
     studentStore.updateStudent(result.data);
-    alertHandler("Estudiante actualizado exitosamente. ✅");
+    showAlert("Estudiante actualizado exitosamente. ✅");
   };
 
   return {

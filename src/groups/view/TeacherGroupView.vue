@@ -1,7 +1,7 @@
 <template>
   <div class="component-name">
     <!-- 💡 Contenido del componente -->
-    <h1> Grupos</h1>
+    <h1> Teacher Grupos</h1>
   </div>
 </template>
 

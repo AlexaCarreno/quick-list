@@ -4,22 +4,10 @@
     <h2 class="text-3xl text-blue-400 text-center mb-6">Registrarse</h2>
 
     <!-- name -->
-    <InputForm
-      v-model="form.name"
-      name="name"
-      label="Nombres"
-      type="text"
-      :required="true"
-    />
+    <InputForm v-model="form.name" name="name" label="Nombres" type="text" :required="true" />
 
     <!-- lastName -->
-    <InputForm
-      v-model="form.lastName"
-      name="lastName"
-      label="Apellidos"
-      type="text"
-      :required="true"
-    />
+    <InputForm v-model="form.lastName" name="lastName" label="Apellidos" type="text" :required="true" />
 
     <!-- birthdate -->
     <DatePicker v-model="form.birthdate" :required="true" />
@@ -30,10 +18,7 @@
     <!-- Enlace a login -->
     <div class="mt-6 text-center text-sm text-gray-300">
       ¿Ya tienes una cuenta?
-      <RouterLink
-        to="/sign-in"
-        class="text-blue-400 hover:underline hover:text-blue-300 transition"
-      >
+      <RouterLink to="/sign-in" class="text-blue-400 hover:underline hover:text-blue-300 transition">
         Acceder
       </RouterLink>
     </div>
@@ -46,10 +31,14 @@ import ButtonForm from "../../common/components/inputs/ButtonForm.vue";
 import DatePicker from "../../common/components/inputs/DatePicker.vue";
 import InputForm from "../../common/components/inputs/InputForm.vue";
 import type { IRegisterData } from "../interfaces/register.interface";
+import { useAlert } from "../../common/alerts/useMyAlert";
+
+
+const { showAlert } = useAlert()
 
 // Props y emits para v-model y navegación
 const props = defineProps<{ modelValue: IRegisterData }>();
-const emit = defineEmits(["update:modelValue", "next", "alert"]);
+const emit = defineEmits(["update:modelValue", "next",]);
 
 // Computed para trabajar con v-model en objeto
 const form = computed({
@@ -66,7 +55,7 @@ const isFormValid = computed(
 
 const handleSubmit = () => {
   if (!isFormValid.value) {
-    emit("alert", "Todos los campos son obligatorios");
+    showAlert("Todos los campos son obligatorios", undefined, "warning");
     return;
   }
   emit("update:modelValue", form.value); // asegúrate de emitir el modelo actualizado

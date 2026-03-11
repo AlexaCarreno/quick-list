@@ -1,12 +1,12 @@
 import { ref } from "vue";
 import { apiFetch } from "../../api/api-client";
-import type { AlertType } from "../../common/alerts/useMyAlert";
 import { useGroupStore } from "../stores/groupStore";
 import type { IGroup, INewGroupPayload } from "../interfaces/groups.interfaces";
+import { useAlert } from "../../common/alerts/useMyAlert";
 
-export const useGroups = (
-  alertHandler: (title: string, msg?: string, type?: AlertType) => void
-) => {
+export const useGroups = () => {
+  const { showAlert } = useAlert();
+
   const groupsStore = useGroupStore();
 
   // formulario basico para creacion de grupo
@@ -24,11 +24,11 @@ export const useGroups = (
 
     if (!result.success) {
       let msg = result.error?.message || "Error al obtener grupos";
-      alertHandler(msg, "warning");
+      showAlert(msg, "warning");
       return;
     }
 
-    alertHandler("Creado exitosamente ✅");
+    showAlert("Creado exitosamente ✅");
     groupsStore.addNewGroup(result.data);
     return;
   };
@@ -40,10 +40,10 @@ export const useGroups = (
     });
 
     if (!result.success) {
-      alertHandler(result.error?.message);
+      showAlert(result.error?.message);
       return;
     }
-    alertHandler(`Grupo actualizado ✅`);
+    showAlert(`Grupo actualizado ✅`);
     groupsStore.updateGroup(id, payload);
   }
 
@@ -52,7 +52,7 @@ export const useGroups = (
 
     if (!result.success) {
       let msg = result.error?.message || "Error al obtener grupos";
-      alertHandler(msg, "warning");
+      showAlert(msg, "warning");
       return;
     }
 
@@ -67,7 +67,7 @@ export const useGroups = (
     });
 
     if (!result.success) {
-      alertHandler(result.error?.message || "Error al cambiar el estado.");
+      showAlert(result.error?.message || "Error al cambiar el estado.");
       return;
     }
 

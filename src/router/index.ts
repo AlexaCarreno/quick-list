@@ -10,7 +10,17 @@ import { NAVIGATION_ITEMS } from "../common/config/navigation.config";
 const protectedRoutes: RouteRecordRaw[] = NAVIGATION_ITEMS.map((item) => ({
   path: item.path.replace("/", ""),
   name: item.name,
-  component: item.component,
+  component: () => {
+    const permissionStore = usePermissionStore();
+    const role = permissionStore.roles[0];
+    const loader = item.component[role];
+
+    if (!loader) {
+      return import("../common/view/NotFound.vue");
+    }
+
+    return loader();
+  },
   meta: {
     resource: item.resource,
     action: item.action,
@@ -42,6 +52,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import("../common/view/EmptyView.vue"),
       },
       ...protectedRoutes,
+      {
+        path: "ui",
+        name: "ui",
+        component: () => import("../common/view/UiComponents.vue")
+      }
     ],
   },
   {

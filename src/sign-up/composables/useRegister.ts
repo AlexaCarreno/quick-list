@@ -4,15 +4,15 @@ import type {
   ISignUpVerification,
 } from "../interfaces/register.interface";
 
-import { useUserStore } from "../../common/stores/userStore";
-import { useAuthStore } from "../../common/stores/authStore";
-import { apiFetch } from "../../api/api-client";
-import type { AlertType } from "../../common/alerts/useMyAlert";
 import { useRouter } from "vue-router";
+import { apiFetch } from "../../api/api-client";
+import { useAlert } from "../../common/alerts/useMyAlert";
+import { useAuthStore } from "../../common/stores/authStore";
+import { useUserStore } from "../../common/stores/userStore";
 
-export const useRegister = (
-  handleAlert: (title: string, msg?: string, type?: AlertType) => void,
-) => {
+export const useRegister = () => {
+  const { showAlert } = useAlert();
+
   /* stores */
   const userStore = useUserStore();
   const authStore = useAuthStore();
@@ -61,11 +61,11 @@ export const useRegister = (
 
       if (!result.success) {
         let message = result.error?.message || "Error al procesar el registro";
-        handleAlert(`${message} ❌`);
+        showAlert(`${message} ❌`);
         return;
       }
 
-      handleAlert("Registro Exitoso ✅");
+      showAlert("Registro Exitoso ✅");
       // Guardar el correo para el paso 3
       verificationForm.value.email = registerform.value.email;
 
@@ -73,7 +73,7 @@ export const useRegister = (
       nextStep();
     } catch (error) {
       console.error("Error al registrar:", error);
-      handleAlert("ℹ️ Ocurrio un error, por favor intenta nuevamente. ");
+      showAlert("ℹ️ Ocurrio un error, por favor intenta nuevamente. ");
     }
   };
 
@@ -88,7 +88,7 @@ export const useRegister = (
 
       if (!result.success) {
         let message = result.error?.message || "Error al procesar el codigo.";
-        handleAlert(`${message} ❌`);
+        showAlert(`${message} ❌`);
         userStore.cleanUser();
         router.push({ name: "register" });
         return;
@@ -97,7 +97,7 @@ export const useRegister = (
       const { accessToken } = result.data;
 
       authStore.setAccessToken(accessToken);
-      handleAlert("Codigo verificado exitosamente ✅");
+      showAlert("Codigo verificado exitosamente ✅");
 
       const myResult = await apiFetch(`/user/me`, {
         method: "GET",
@@ -107,20 +107,20 @@ export const useRegister = (
         let message =
           myResult.error?.message ||
           "Ocurrio un error al obtener la informacion del usuario.";
-        handleAlert(`${message} ❌`);
+        showAlert(`${message} ❌`);
         return;
       }
 
       userStore.setUser(myResult.data.user);
 
-      handleAlert("Bienvenido a QuickList ✅");
+      showAlert("Bienvenido a QuickList ✅");
 
       await new Promise((resolve) => setTimeout(resolve, 700));
 
       router.push({ name: "root" });
     } catch (error) {
       console.log(error);
-      handleAlert("ℹ️ Ocurrio un error inesperado.");
+      showAlert("ℹ️ Ocurrio un error inesperado.");
     }
   };
 

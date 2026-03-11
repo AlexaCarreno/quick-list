@@ -7,7 +7,7 @@ export interface NavigationItem {
   resource: string;
   action: string; // normalmente "access"
   showInMenu?: boolean;
-  component: () => Promise<Component>;
+  component: Record<string, () => Promise<Component>>;
 }
 
 export const NAVIGATION_ITEMS: NavigationItem[] = [
@@ -18,25 +18,9 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     resource: "users",
     action: "access",
     showInMenu: true,
-    component: () => import("../../users/view/UsersView.vue"),
-  },
-  {
-    label: "Grupos",
-    path: "/groups",
-    name: "groups",
-    resource: "groups",
-    action: "access",
-    showInMenu: true,
-    component: () => import("../../groups/view/GroupsView.vue"),
-  },
-  {
-    label: "Asistencias",
-    path: "/attendance",
-    name: "attendance",
-    resource: "attendance",
-    action: "access",
-    showInMenu: true,
-    component: () => import("../../attendance/view/AttendanceView.vue"),
+    component: {
+      admin: () => import("../../users/view/UsersView.vue"),
+    },
   },
   {
     label: "Estudiantes",
@@ -45,6 +29,32 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     resource: "students",
     action: "access",
     showInMenu: true,
-    component: () => import("../../students/view/StudentsView.vue"),
+    component: {
+      admin: () => import("../../students/view/StudentsView.vue"),
+      teacher: () => import("../../students/view/StudentsView.vue"),
+    },
+  },
+  {
+    label: "Grupos",
+    path: "/groups",
+    name: "groups",
+    resource: "groups",
+    action: "access",
+    showInMenu: true,
+    component: {
+      admin: () => import("../../groups/view/AdminGroupView.vue"),
+      teacher: () => import("../../groups/view/TeacherGroupView.vue"),
+    },
+  },
+  {
+    label: "Asistencias",
+    path: "/attendance",
+    name: "attendance",
+    resource: "attendance",
+    action: "access",
+    showInMenu: true,
+    component: {
+      admin: () => import("../../attendance/view/AttendanceView.vue"),
+    },
   },
 ];

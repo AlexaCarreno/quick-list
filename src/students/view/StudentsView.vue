@@ -1,7 +1,7 @@
 <template>
     <div class="component-name">
         <!-- 💡 Contenido del componente -->
-        <h1> Estudiantes </h1>
+        <h1> Estudiantes  jeje</h1>
     </div>
 </template>
 

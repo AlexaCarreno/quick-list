@@ -7,19 +7,28 @@ const message = ref<string | undefined>("");
 const title = ref("");
 const type = ref<AlertType>("info");
 
+let timer: number | undefined;
+
 const showAlert = (
   alertTitle: string,
   msg?: string,
-  alertType: AlertType = "info"
+  alertType: AlertType = "info",
 ) => {
+  title.value = alertTitle;
   message.value = msg;
   type.value = alertType;
-  title.value = alertTitle;
   visible.value = true;
+
+  if (timer) clearTimeout(timer);
+
+  timer = window.setTimeout(() => {
+    closeAlert();
+  }, 2000);
 };
 
 const closeAlert = () => {
   visible.value = false;
+  message.value = ""
 };
 
 export function useAlert() {
