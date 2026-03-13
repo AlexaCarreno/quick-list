@@ -31,8 +31,8 @@ export const useStudents = () => {
         );
         return;
       }
-      students.value = res.data.data;
-      total.value = res.data.total;
+      students.value = res.data.students;
+      total.value = res.data.metadata.total;
     } finally {
       loading.value = false;
     }
