@@ -180,7 +180,7 @@ const layoutRef = ref<{ reset: () => void } | null>(null);
 
 defineProps<{ admins: Admin[]; total: number; loading?: boolean }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (e: "query-change", query: Record<string, any>): void;
 }>();
 

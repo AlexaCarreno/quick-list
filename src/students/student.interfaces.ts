@@ -14,3 +14,10 @@ export interface Student {
   state: boolean;
   createdAt: string;
 }
+
+export const studentFilterMap = {
+  name: "name",
+  email: "email",
+  documentNumber: "documentNumber",
+  career: "career",
+} as const;

@@ -52,11 +52,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import("../common/view/EmptyView.vue"),
       },
       ...protectedRoutes,
-      {
-        path: "ui",
-        name: "ui",
-        component: () => import("../common/view/UiComponents.vue")
-      }
     ],
   },
   {
