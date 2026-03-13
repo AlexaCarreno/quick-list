@@ -1,67 +1,63 @@
 import { ref } from "vue";
-import { useAlert } from "../../common/alerts/useMyAlert";
 import {
-  createTeacher,
-  getTeachers,
-  toggleTeacherState,
-  updateTeacher,
-  type GetTeachersQuery,
-} from "../api/teachersApi";
-import type { Teacher } from "../user.interfaces";
+  createAdmin,
+  getAdmins,
+  toggleAdminState,
+  updateAdmin,
+  type GetAdminsQuery,
+} from "../api/adminsApi";
 
-export const useTeachers = () => {
+import { useAlert } from "../../common/alerts/useMyAlert";
+import type { Admin } from "../user.interfaces";
+
+export const useAdmins = () => {
   const { showAlert } = useAlert();
 
-  const teachers = ref<Teacher[]>([]);
+  const admins = ref<Admin[]>([]);
   const total = ref(0);
   const loading = ref(false);
   const creating = ref(false);
   const updating = ref(false);
   const toggling = ref(false);
 
-  const fetchTeachers = async (query: GetTeachersQuery) => {
+  const fetchAdmins = async (query: GetAdminsQuery) => {
     loading.value = true;
-
-    const res = await getTeachers(query);
-
+    const res = await getAdmins(query);
     if (res.success) {
-      teachers.value = res.data.teachers;
+      admins.value = res.data.admins;
       total.value = res.data.metadata.total;
     }
-
     loading.value = false;
   };
 
-  const addTeacher = async (formData: FormData) => {
+  const addAdmin = async (formData: FormData) => {
     creating.value = true;
     try {
-      const res = await createTeacher(formData);
+      const res = await createAdmin(formData);
       if (!res.success) {
-        // Lanza el mensaje de error que venga del backend
-        const message = res.error?.message || "No se pudo crear el docente.";
+        const message =
+          res.error?.message || "No se pudo crear el administrador.";
         showAlert(message, undefined, "error");
+        return res;
       }
-
-      showAlert("Docente creado", undefined, "success");
-
+      showAlert("Administrador creado", undefined, "success");
       return res;
     } finally {
       creating.value = false;
     }
   };
 
-  const editTeacher = async (id: string, formData: FormData) => {
+  const editAdmin = async (id: string, formData: FormData) => {
     updating.value = true;
     try {
-      const res = await updateTeacher(id, formData);
+      const res = await updateAdmin(id, formData);
       if (!res.success) {
         const message =
-          res.error?.message || "No se pudo actualizar el docente.";
+          res.error?.message || "No se pudo actualizar el administrador.";
         showAlert(message, undefined, "error");
         return res;
       }
-
-      showAlert("Docente actualizado", undefined, "success");
+      showAlert("Administrador actualizado", undefined, "success");
       return res;
     } finally {
       updating.value = false;
@@ -71,7 +67,7 @@ export const useTeachers = () => {
   const toggleState = async (id: string) => {
     toggling.value = true;
     try {
-      const res = await toggleTeacherState(id);
+      const res = await toggleAdminState(id);
       if (!res.success) {
         showAlert(
           res.error?.message || "No se pudo cambiar el estado.",
@@ -81,7 +77,7 @@ export const useTeachers = () => {
         return res;
       }
       showAlert(
-        res.data.state ? "Docente activado" : "Docente desactivado",
+        res.data.state ? "Administrador activado" : "Administrador desactivado",
         undefined,
         "success",
       );
@@ -92,18 +88,15 @@ export const useTeachers = () => {
   };
 
   return {
-    // props
-    teachers,
+    admins,
     total,
     loading,
     creating,
     updating,
     toggling,
-
-    // methods
-    fetchTeachers,
-    addTeacher,
-    editTeacher,
+    fetchAdmins,
+    addAdmin,
+    editAdmin,
     toggleState,
   };
 };

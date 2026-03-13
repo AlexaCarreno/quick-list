@@ -31,7 +31,9 @@
         v-else
         class="flex-1 min-h-0"
         :admins="admins"
-        :total="admins.length"
+        :total="adminsTotal"
+        :loading="adminsLoading"
+        @query-change="handleAdminQuery"
       />
     </div>
   </div>
@@ -39,13 +41,14 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import type { Admin } from "../../common/components/ui/AdminList.vue";
 
 import type { GetTeachersQuery } from "../api/teachersApi";
 import { useTeachers } from "../composable/useTeachers";
 
 import TeacherList from "../components/TeacherList.vue";
 import AdminList from "../components/AdminList.vue";
+import { useAdmins } from "../composable/useAdmins";
+import type { GetAdminsQuery } from "../api/adminsApi";
 
 const activeTab = ref<"teachers" | "admins">("teachers");
 
@@ -55,40 +58,22 @@ const inactiveClass = "px-4 py-1 bg-slate-700 rounded";
 
 // Datos de ejemplo
 const { teachers, total, loading, fetchTeachers } = useTeachers();
-
 const handleTeacherQuery = (query: GetTeachersQuery) => {
   fetchTeachers(query);
 };
 
-const admins = ref<Admin[]>([]);
+const {
+  admins,
+  total: adminsTotal,
+  loading: adminsLoading,
+  fetchAdmins,
+} = useAdmins();
+
+const handleAdminQuery = (query: GetAdminsQuery) => fetchAdmins(query);
 
 onMounted(() => {
-  // Simula fetch del backend
-  fetchTeachers({
-    offset: 0,
-    limit: 10,
-  });
-
-  admins.value = [
-    {
-      _id: "a1",
-      userId: "admin1",
-      name: "Andrés Felipe",
-      lastName: "Gómez",
-      email: "admin@gmail.com",
-      state: true,
-      createdAt: "2026-02-12T12:00:00.000Z",
-    },
-    {
-      _id: "a2",
-      userId: "admin2",
-      name: "Angie",
-      lastName: "Carreño",
-      email: "angie.admin@gmail.com",
-      state: false,
-      createdAt: "2026-02-10T08:00:00.000Z",
-    },
-  ];
+  fetchTeachers({ offset: 0, limit: 10 });
+  fetchAdmins({ offset: 0, limit: 10 });
 });
 </script>
 

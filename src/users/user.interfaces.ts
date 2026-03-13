@@ -21,3 +21,19 @@ export const filterMap = {
 } as const;
 
 export type TeacherFilter = keyof typeof filterMap;
+
+export interface Admin {
+  _id: string;
+  userId: string;
+  name: string;
+  lastName: string;
+  email: string;
+  birthday: string;
+  photo?: string;
+  documentNumber?: string;
+  residentialAddress?: string;
+  position?: string;
+  department?: string;
+  state: boolean;
+  createdAt: string;
+}

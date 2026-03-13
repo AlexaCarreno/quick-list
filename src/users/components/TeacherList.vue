@@ -1,5 +1,6 @@
 <template>
   <EntityListLayout
+    ref="layoutRef"
     :items="teachers"
     :total="total"
     :loading="loading"
@@ -132,6 +133,31 @@
       @cancel="createModalOpen = false"
     />
   </MyModal>
+
+  <MyModal v-model:open="editModalOpen" size="lg" :closable="true">
+    <TeacherEditForm
+      v-if="teacherToEdit"
+      :teacher="teacherToEdit"
+      :on-submit="updateTeacher"
+      @success="onTeacherUpdated"
+      @cancel="editModalOpen = false"
+    />
+  </MyModal>
+
+  <ConfirmModal
+    :open="confirmOpen"
+    :title="teacherToToggle?.state ? 'Desactivar docente' : 'Activar docente'"
+    :message="
+      teacherToToggle?.state
+        ? `¿Seguro que deseas desactivar a ${teacherToToggle?.name}? No podrá acceder al sistema.`
+        : `¿Deseas activar a ${teacherToToggle?.name}? Recuperará acceso al sistema.`
+    "
+    :confirm-label="teacherToToggle?.state ? 'Desactivar' : 'Activar'"
+    :variant="teacherToToggle?.state ? 'danger' : 'success'"
+    :loading="toggling"
+    @confirm="handleToggleConfirm"
+    @cancel="handleToggleCancel"
+  />
 </template>
 
 <script setup lang="ts">
@@ -141,11 +167,16 @@ import { filterMap, type Teacher } from "../user.interfaces";
 import { getAvatarUrl } from "../../common/utils/avatar";
 
 import RowActions from "../../common/components/ui/RowActions.vue";
-import TeacherDetailContent from "../../common/components/ui/TeacherDetailContent.vue";
+
 import EntityListLayout from "../../common/tables/EntityListLayout.vue";
 import MyModal from "../../common/components/modals/MyModal.vue";
 import TeacherForm from "./TeacherForm.vue";
 import { useTeachers } from "../composable/useTeachers";
+import TeacherEditForm from "./TeacherEditForm.vue";
+import TeacherDetailContent from "./TeacherDetailContent.vue";
+import ConfirmModal from "./ConfirmModal.vue";
+
+const layoutRef = ref<{ reset: () => void } | null>(null);
 
 defineProps<{
   teachers: Teacher[];
@@ -157,7 +188,12 @@ const emit = defineEmits<{
   (e: "query-change", query: GetTeachersQuery): void;
 }>();
 
-const { addTeacher } = useTeachers();
+const {
+  addTeacher,
+  editTeacher: updateTeacher,
+  toggleState,
+  toggling,
+} = useTeachers();
 
 /* -----------------------------------------------------
  * Configuración de tabla (lo único específico de Teacher)
@@ -193,7 +229,10 @@ const closeActions = () => {
 
 const rowActions = (teacher: Teacher) => [
   { label: "Editar", onClick: () => editTeacher(teacher) },
-  { label: "Eliminar", onClick: () => deleteTeacher(teacher) },
+  {
+    label: teacher.state ? "Desactivar" : "Activar",
+    onClick: () => openToggleConfirm(teacher),
+  },
 ];
 
 /* -----------------------------------------------------
@@ -216,13 +255,6 @@ const teacherAvatar = (teacher: Teacher) =>
 /* -----------------------------------------------------
  * Acciones CRUD (conectar con modales/forms reales)
  * --------------------------------------------------- */
-const editTeacher = (teacher: Teacher) => {
-  console.log("Editar", teacher);
-};
-
-const deleteTeacher = (teacher: Teacher) => {
-  console.log("Eliminar", teacher);
-};
 
 const createModalOpen = ref(false);
 
@@ -233,6 +265,46 @@ const openCreateTeacher = () => {
 const onTeacherCreated = () => {
   createModalOpen.value = false;
   // re-fetch: emitir query-change para recargar la lista
-  emit("query-change", { offset: 0, limit: 10 });
+  layoutRef.value?.reset();
+};
+
+const editModalOpen = ref(false);
+const teacherToEdit = ref<Teacher | null>(null);
+
+const editTeacher = (teacher: Teacher) => {
+  teacherToEdit.value = teacher;
+  editModalOpen.value = true;
+};
+
+const onTeacherUpdated = () => {
+  editModalOpen.value = false;
+  teacherToEdit.value = null;
+  layoutRef.value?.reset();
+};
+
+const deleteTeacher = (teacher: Teacher) => {
+  console.log("Eliminar", teacher); // por ahora
+};
+
+// state del confirm
+const confirmOpen = ref(false);
+const teacherToToggle = ref<Teacher | null>(null);
+
+const openToggleConfirm = (teacher: Teacher) => {
+  teacherToToggle.value = teacher;
+  confirmOpen.value = true;
+};
+
+const handleToggleConfirm = async () => {
+  if (!teacherToToggle.value) return;
+  await toggleState(teacherToToggle.value._id);
+  confirmOpen.value = false;
+  teacherToToggle.value = null;
+  layoutRef.value?.reset();
+};
+
+const handleToggleCancel = () => {
+  confirmOpen.value = false;
+  teacherToToggle.value = null;
 };
 </script>

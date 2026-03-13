@@ -1,44 +1,40 @@
 import { apiFetch } from "../../api/api-client";
 
-export interface GetTeachersQuery {
+export interface GetAdminsQuery {
   offset?: number;
   limit?: number;
-
   nameContains?: string;
   emailContains?: string;
   documentNumberContains?: string;
 }
 
-export const getTeachers = async (query: GetTeachersQuery = {}) => {
+export const getAdmins = async (query: GetAdminsQuery = {}) => {
   const params = new URLSearchParams();
-
   Object.entries(query).forEach(([key, value]) => {
     if (value !== undefined && value !== "") {
       params.append(key, String(value));
     }
   });
-
   const queryString = params.toString();
-
-  return await apiFetch(`/teachers${queryString ? `?${queryString}` : ""}`);
+  return await apiFetch(`/admins${queryString ? `?${queryString}` : ""}`);
 };
 
-export const createTeacher = async (formData: FormData) => {
-  return await apiFetch("/accounts/teachers", {
+export const createAdmin = async (formData: FormData) => {
+  return await apiFetch("/accounts/admins", {
     method: "POST",
     body: formData,
   });
 };
 
-export const updateTeacher = async (id: string, formData: FormData) => {
-  return await apiFetch(`/teachers/${id}`, {
+export const updateAdmin = async (id: string, formData: FormData) => {
+  return await apiFetch(`/admins/${id}`, {
     method: "PATCH",
     body: formData,
   });
 };
 
-export const toggleTeacherState = async (id: string) => {
-  return await apiFetch(`/teachers/${id}/toggle-state`, {
+export const toggleAdminState = async (id: string) => {
+  return await apiFetch(`/admins/${id}/toggle-state`, {
     method: "PATCH",
   });
 };

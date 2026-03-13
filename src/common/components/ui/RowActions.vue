@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from "vue";
+import { onBeforeUnmount, ref, watch } from "vue";
 
 const props = defineProps<{
   open: boolean;
@@ -33,14 +33,6 @@ const props = defineProps<{
 
 const emit = defineEmits(["toggle", "close"]);
 const container = ref<HTMLElement | null>(null);
-
-// Detectar si hay espacio abajo o debe abrir hacia arriba
-const openUpward = computed(() => {
-  if (!container.value) return false;
-  const rect = container.value.getBoundingClientRect();
-  const spaceBelow = window.innerHeight - rect.bottom;
-  return spaceBelow < 120; // altura aproximada del dropdown
-});
 
 const handleClickOutside = (e: MouseEvent) => {
   if (!container.value?.contains(e.target as Node)) {

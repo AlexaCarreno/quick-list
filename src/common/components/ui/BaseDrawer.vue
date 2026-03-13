@@ -5,7 +5,7 @@
 
         <!-- Desktop: Right drawer -->
         <div
-            class="hidden md:block absolute right-0 top-0 h-full w-full max-w-md bg-gray-900 shadow-xl overflow-y-auto">
+            class="hidden md:block absolute right-0 top-0 h-full w-full max-w-xl bg-gray-900 shadow-xl overflow-y-auto">
             <slot />
         </div>
 

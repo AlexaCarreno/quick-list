@@ -48,7 +48,9 @@
 
   <!-- Drawer -->
   <BaseDrawer :open="drawerOpen" @close="closeDrawer">
-    <slot name="drawer" :item="selectedItem" :close="closeDrawer" />
+    <template v-if="selectedItem">
+      <slot name="drawer" :item="selectedItem" :close="closeDrawer" />
+    </template>
   </BaseDrawer>
 </template>
 
@@ -167,4 +169,12 @@ watchDebounced(
   },
   { debounce: 400 },
 );
+
+const reset = () => {
+  page.value = 1;
+  search.value = "";
+  emitQuery();
+};
+
+defineExpose({ reset });
 </script>
