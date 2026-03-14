@@ -1,87 +1,161 @@
 import { ref } from "vue";
-import { apiFetch } from "../../api/api-client";
-import { useGroupStore } from "../stores/groupStore";
-import type { IGroup, INewGroupPayload } from "../interfaces/groups.interfaces";
 import { useAlert } from "../../common/alerts/useMyAlert";
+import type { Group } from "../interfaces/groups.interfaces";
+import {
+  createGroup,
+  deleteGroup,
+  getGroupById,
+  getGroups,
+  toggleGroupStatus,
+  updateGroup,
+  type CreateGroupPayload,
+  type GetGroupsQuery,
+  type UpdateGroupPayload,
+} from "../api/groupsApi";
 
 export const useGroups = () => {
   const { showAlert } = useAlert();
 
-  const groupsStore = useGroupStore();
+  const groups = ref<Group[]>([]);
+  const group = ref<Group | null>(null);
+  const total = ref(0);
+  const loading = ref(false);
+  const creating = ref(false);
+  const updating = ref(false);
+  const toggling = ref(false);
+  const deleting = ref(false);
 
-  // formulario basico para creacion de grupo
-  const formNewGroup = ref<Partial<IGroup>>({
-    institutionName: "",
-    subject: "",
-    referenceCode: "",
-  });
-
-  const addNewGroup = async (group: INewGroupPayload) => {
-    const result = await apiFetch("/group", {
-      method: "POST",
-      body: JSON.stringify(group),
-    });
-
-    if (!result.success) {
-      let msg = result.error?.message || "Error al obtener grupos";
-      showAlert(msg, "warning");
-      return;
+  const fetchGroups = async (query: GetGroupsQuery = {}) => {
+    loading.value = true;
+    try {
+      const res = await getGroups(query);
+      if (!res.success) {
+        showAlert(
+          res.error?.message || "Error al cargar grupos.",
+          undefined,
+          "error",
+        );
+        return;
+      }
+      groups.value = res.data.groups;
+      total.value = res.data.metadata.total;
+    } finally {
+      loading.value = false;
     }
-
-    showAlert("Creado exitosamente ✅");
-    groupsStore.addNewGroup(result.data);
-    return;
   };
 
-  async function editGroup(id: string, payload: INewGroupPayload) {
-    const result = await apiFetch(`/group/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
-
-    if (!result.success) {
-      showAlert(result.error?.message);
-      return;
+  const fetchGroupById = async (id: string) => {
+    loading.value = true;
+    try {
+      const res = await getGroupById(id);
+      if (!res.success) {
+        showAlert(
+          res.error?.message || "Error al cargar el grupo.",
+          undefined,
+          "error",
+        );
+        return;
+      }
+      group.value = res.data;
+    } finally {
+      loading.value = false;
     }
-    showAlert(`Grupo actualizado ✅`);
-    groupsStore.updateGroup(id, payload);
-  }
+  };
 
-  async function loadGroupsFromDb() {
-    const result = await apiFetch("/group");
-
-    if (!result.success) {
-      let msg = result.error?.message || "Error al obtener grupos";
-      showAlert(msg, "warning");
-      return;
+  const addGroup = async (payload: CreateGroupPayload) => {
+    creating.value = true;
+    try {
+      const res = await createGroup(payload);
+      if (!res.success) {
+        showAlert(
+          res.error?.message || "Error al crear grupo.",
+          undefined,
+          "error",
+        );
+        return res;
+      }
+      showAlert("Grupo creado correctamente.", undefined, "success");
+      return res;
+    } finally {
+      creating.value = false;
     }
+  };
 
-    groupsStore.setGroups(result.data);
-    return;
-  }
-
-  async function changeStatus(id: string, status: "active" | "archived") {
-    const result = await apiFetch(`/group/${id}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ status }),
-    });
-
-    if (!result.success) {
-      showAlert(result.error?.message || "Error al cambiar el estado.");
-      return;
+  const editGroup = async (id: string, payload: UpdateGroupPayload) => {
+    updating.value = true;
+    try {
+      const res = await updateGroup(id, payload);
+      if (!res.success) {
+        showAlert(
+          res.error?.message || "Error al actualizar grupo.",
+          undefined,
+          "error",
+        );
+        return res;
+      }
+      showAlert("Grupo actualizado correctamente.", undefined, "success");
+      return res;
+    } finally {
+      updating.value = false;
     }
+  };
 
-    groupsStore.setStatusGroup(id, status);
-  }
+  const toggleStatus = async (id: string) => {
+    toggling.value = true;
+    try {
+      const res = await toggleGroupStatus(id);
+      if (!res.success) {
+        showAlert(
+          res.error?.message || "No se pudo cambiar el estado.",
+          undefined,
+          "error",
+        );
+        return res;
+      }
+      showAlert(
+        res.data.status === "active" ? "Grupo activado." : "Grupo inactivado.",
+        undefined,
+        "success",
+      );
+      return res;
+    } finally {
+      toggling.value = false;
+    }
+  };
+
+  const removeGroup = async (id: string) => {
+    deleting.value = true;
+    try {
+      const res = await deleteGroup(id);
+      if (!res.success) {
+        showAlert(
+          res.error?.message || "No se pudo eliminar el grupo.",
+          undefined,
+          "error",
+        );
+        return res;
+      }
+      showAlert("Grupo eliminado correctamente.", undefined, "success");
+      return res;
+    } finally {
+      deleting.value = false;
+    }
+  };
 
   return {
-    // properties
-    formNewGroup,
-
-    // methods
-    addNewGroup,
+    groups,
+    group,
+    total,
+    loading,
+    creating,
+    updating,
+    toggling,
+    deleting,
+    fetchGroups,
+    fetchGroupById,
+    addGroup,
     editGroup,
-    loadGroupsFromDb,
-    changeStatus,
+    toggleStatus,
+    removeGroup,
   };
 };

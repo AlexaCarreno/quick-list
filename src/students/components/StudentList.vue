@@ -24,42 +24,43 @@
 
     <!-- MOBILE -->
     <template #mobile="{ item, openDetail }">
-      <div
-        class="flex gap-x-4 justify-between items-center cursor-pointer"
-        @click.stop="openDetail(item)"
-      >
-        <div class="flex gap-x-4 flex-1 min-w-0">
+      <MobileCard @click="openDetail(item)">
+        <template #avatar>
           <img
-            class="size-12 rounded-full bg-slate-800 object-cover"
             :src="studentAvatar(item)"
+            class="size-12 rounded-full object-cover bg-slate-700"
           />
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-white">
-              {{ item.name }} {{ item.lastName }}
-            </p>
-            <p class="text-xs text-slate-400 truncate">{{ item.email }}</p>
-            <p class="text-xs text-slate-400">Doc: {{ item.documentNumber }}</p>
-            <p class="text-xs text-slate-400 truncate">{{ item.career }}</p>
-            <div class="mt-2 flex items-center gap-x-2">
-              <span
-                class="size-2 rounded-full"
-                :class="item.state ? 'bg-emerald-500' : 'bg-red-500'"
-              />
-              <span class="text-xs text-slate-400">
-                {{ item.state ? "Activo" : "Inactivo" }}
-              </span>
-            </div>
+        </template>
+        <template #title>
+          <p class="text-sm font-semibold text-white truncate">
+            {{ item.name }} {{ item.lastName }}
+          </p>
+          <p class="text-xs text-slate-400 truncate">{{ item.email }}</p>
+        </template>
+        <template #info>
+          <p class="text-xs text-slate-400">Doc: {{ item.documentNumber }}</p>
+          <p class="text-xs text-slate-400 truncate">{{ item.career }}</p>
+        </template>
+        <template #status>
+          <div class="flex items-center gap-2">
+            <span
+              class="size-2 rounded-full"
+              :class="item.state ? 'bg-emerald-500' : 'bg-red-500'"
+            />
+            <span class="text-xs text-slate-400">{{
+              item.state ? "Activo" : "Inactivo"
+            }}</span>
           </div>
-        </div>
-        <div class="flex-shrink-0" @click.stop>
+        </template>
+        <template #actions>
           <RowActions
             :open="activeActionsId === item._id"
             @toggle="toggleActions(item._id)"
             @close="closeActions"
             :actions="rowActions(item)"
           />
-        </div>
-      </div>
+        </template>
+      </MobileCard>
     </template>
 
     <!-- COLUMNA: user -->
@@ -172,10 +173,11 @@ import { ref } from "vue";
 
 import { getAvatarUrl } from "../../common/utils/avatar";
 
+import ConfirmModal from "../../common/components/modals/ConfirmModal.vue";
 import MyModal from "../../common/components/modals/MyModal.vue";
+import MobileCard from "../../common/components/ui/MobileCard.vue";
 import RowActions from "../../common/components/ui/RowActions.vue";
 import EntityListLayout from "../../common/tables/EntityListLayout.vue";
-import ConfirmModal from "../../users/components/ConfirmModal.vue";
 import { studentFilterMap, type Student } from "../student.interfaces";
 import type { GetStudentsQuery } from "../studentApi";
 import { useStudents } from "../useStudents";

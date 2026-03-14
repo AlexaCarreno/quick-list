@@ -52,6 +52,15 @@ const routes: RouteRecordRaw[] = [
         component: () => import("../common/view/EmptyView.vue"),
       },
       ...protectedRoutes,
+      {
+        path: "groups/:id",
+        name: "group-detail",
+        component: () => import("../groups/view/GroupDetailView.vue"),
+        meta: {
+          resource: "groups",
+          action: "access",
+        },
+      },
     ],
   },
   {

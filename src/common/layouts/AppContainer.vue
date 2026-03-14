@@ -40,7 +40,11 @@
         }"
       >
         <!-- 🔁 Aquí se inyectarán las vistas de tus rutas hijas -->
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <Transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </router-view>
       </div>
     </main>
   </div>
@@ -88,3 +92,15 @@ onBeforeUnmount(() => {
 
 watch(isMobileMenuOpen, (v) => console.log("mobile menu:", v));
 </script>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

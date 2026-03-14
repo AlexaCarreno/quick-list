@@ -9,7 +9,8 @@
 
     <div
       v-if="open"
-      class="absolute right-8 top-1/2 -translate-y-1/2 w-40 bg-gray-800 border border-white/10 rounded-lg shadow-lg z-50"
+      class="fixed w-40 bg-gray-800 border border-white/10 rounded-lg shadow-lg z-50"
+      :style="dropdownStyle"
     >
       <button
         v-for="action in actions"
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from "vue";
+import { nextTick, onBeforeUnmount, ref, watch } from "vue";
 
 const props = defineProps<{
   open: boolean;
@@ -33,6 +34,19 @@ const props = defineProps<{
 
 const emit = defineEmits(["toggle", "close"]);
 const container = ref<HTMLElement | null>(null);
+const dropdownStyle = ref({});
+
+const updatePosition = async () => {
+  await nextTick();
+  const btn = container.value?.querySelector("button");
+  if (!btn) return;
+  const rect = btn.getBoundingClientRect();
+  dropdownStyle.value = {
+    top: `${rect.top + rect.height / 2}px`,
+    right: `${window.innerWidth - rect.left}px`,
+    transform: "translateY(-50%)",
+  };
+};
 
 const handleClickOutside = (e: MouseEvent) => {
   if (!container.value?.contains(e.target as Node)) {
@@ -43,8 +57,12 @@ const handleClickOutside = (e: MouseEvent) => {
 watch(
   () => props.open,
   (isOpen) => {
-    if (isOpen) document.addEventListener("click", handleClickOutside);
-    else document.removeEventListener("click", handleClickOutside);
+    if (isOpen) {
+      updatePosition();
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
   },
 );
 

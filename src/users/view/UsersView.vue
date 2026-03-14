@@ -6,13 +6,13 @@
         :class="activeTab === 'teachers' ? activeClass : inactiveClass"
         @click="activeTab = 'teachers'"
       >
-        Teachers
+        Docentes
       </button>
       <button
         :class="activeTab === 'admins' ? activeClass : inactiveClass"
         @click="activeTab = 'admins'"
       >
-        Admins
+        Administradores
       </button>
     </div>
 

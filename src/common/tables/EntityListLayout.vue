@@ -25,7 +25,7 @@
     </div>
 
     <!-- TABLE SCROLL -->
-    <div class="overflow-auto">
+    <div class="flex-1 min-h-0 overflow-auto">
       <DataList
         :items="items"
         :columns="columns"
@@ -47,7 +47,7 @@
   </div>
 
   <!-- Drawer -->
-  <BaseDrawer :open="drawerOpen" @close="closeDrawer">
+  <BaseDrawer v-if="!disableDrawer" :open="drawerOpen" @close="closeDrawer">
     <template v-if="selectedItem">
       <slot name="drawer" :item="selectedItem" :close="closeDrawer" />
     </template>
@@ -90,6 +90,7 @@ const props = defineProps<{
   filters: FilterOption[];
   filterMap?: FilterMap;
   defaultFilter?: string;
+  disableDrawer?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -131,7 +132,9 @@ const onRowClick = (item: T) => {
   // Emite hacia arriba Y abre drawer por defecto.
   // El padre puede ignorar el evento si no necesita drawer.
   emit("row-click", item);
-  openDetail(item);
+  if (!props.disableDrawer) {
+    openDetail(item);
+  }
 };
 
 /* -----------------------------------------------------
