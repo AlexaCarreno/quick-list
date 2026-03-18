@@ -41,3 +41,24 @@ export const toggleStudentState = async (id: string) => {
     method: "PATCH",
   });
 };
+
+export const registerStudentFace = async (id: string, formData: FormData) => {
+  return await apiFetch(`/students/${id}/register-face`, {
+    method: "PATCH",
+    body: formData,
+  });
+};
+
+export const getStudentById = async (id: string) => {
+  return await apiFetch(`/students/${id}`);
+};
+
+export const getStudentFaceStatus = async (id: string) => {
+  return await apiFetch(`/students/${id}/face-status`);
+};
+
+export const deleteStudentFaceProfile = async (id: string) => {
+  return await apiFetch(`/students/${id}/face-profile`, {
+    method: "DELETE",
+  });
+};

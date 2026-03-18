@@ -52,6 +52,18 @@ const routes: RouteRecordRaw[] = [
         component: () => import("../common/view/EmptyView.vue"),
       },
       ...protectedRoutes,
+
+      // grupos teacher
+      {
+        path: "groups/:id/session",
+        name: "teacher-group-session",
+        component: () => import("../groups/view/TeacherGroupDetailView.vue"),
+        meta: {
+          resource: "attendance",
+          action: "access",
+        },
+      },
+      // grupos admin
       {
         path: "groups/:id",
         name: "group-detail",
@@ -60,6 +72,19 @@ const routes: RouteRecordRaw[] = [
           resource: "groups",
           action: "access",
         },
+      },
+      // asistencia
+      {
+        path: "attendance/:id",
+        name: "attendance-detail",
+        component: () => import("../attendance/view/AttendanceDetailView.vue"),
+        meta: { resource: "attendance", action: "access" },
+      },
+      {
+        path: "attendance/:attendanceId/camera",
+        name: "attendance-camera",
+        component: () => import("../attendance/view/AttendanceCameraView.vue"),
+        meta: { resource: "attendance", action: "access" },
       },
     ],
   },

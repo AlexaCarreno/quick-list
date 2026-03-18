@@ -10,7 +10,7 @@ export interface Student {
   phone?: string;
   residentialAddress?: string;
   photo?: string;
-  faceProfileId?: string;
+  hasFaceProfile: boolean;
   state: boolean;
   createdAt: string;
 }

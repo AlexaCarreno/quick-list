@@ -3,10 +3,11 @@ import type { Component } from "vue";
 export interface NavigationItem {
   label: string;
   path: string;
-  name: string; // nombre de ruta
+  name: string;
   resource: string;
-  action: string; // normalmente "access"
+  action: string;
   showInMenu?: boolean;
+  roles?: string[]; // ← agregar esto
   component: Record<string, () => Promise<Component>>;
 }
 
@@ -18,6 +19,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     resource: "users",
     action: "access",
     showInMenu: true,
+    roles: ["admin"],
     component: {
       admin: () => import("../../users/view/UsersView.vue"),
     },
@@ -29,6 +31,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     resource: "students",
     action: "access",
     showInMenu: true,
+    roles: ["admin"],
     component: {
       admin: () => import("../../students/view/StudentsView.vue"),
       teacher: () => import("../../students/view/StudentsView.vue"),
@@ -41,6 +44,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     resource: "groups",
     action: "access",
     showInMenu: true,
+    roles: ["admin", "teacher"],
     component: {
       admin: () => import("../../groups/view/AdminGroupView.vue"),
       teacher: () => import("../../groups/view/TeacherGroupView.vue"),
@@ -53,6 +57,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     resource: "attendance",
     action: "access",
     showInMenu: true,
+    roles: ["admin"],
     component: {
       admin: () => import("../../attendance/view/AttendanceView.vue"),
     },

@@ -128,7 +128,11 @@
 
     <!-- DRAWER -->
     <template #drawer="{ item, close }">
-      <StudentDetailContent :student="item" @close="close" />
+      <StudentDetailContent
+        :student="currentStudent ?? item"
+        @close="close"
+        @face-registered="onFaceRegistered(item)"
+      />
     </template>
   </EntityListLayout>
 
@@ -179,13 +183,14 @@ import MobileCard from "../../common/components/ui/MobileCard.vue";
 import RowActions from "../../common/components/ui/RowActions.vue";
 import EntityListLayout from "../../common/tables/EntityListLayout.vue";
 import { studentFilterMap, type Student } from "../student.interfaces";
-import type { GetStudentsQuery } from "../studentApi";
+import { getStudentById, type GetStudentsQuery } from "../studentApi";
 import { useStudents } from "../useStudents";
 import StudentDetailContent from "./StudentDetailContent.vue";
 import StudentEditForm from "./StudentEditForm.vue";
 import StudentForm from "./StudentForm.vue";
 
 const layoutRef = ref<{ reset: () => void } | null>(null);
+const currentStudent = ref<Student | null>(null);
 
 defineProps<{
   students: Student[];
@@ -282,5 +287,14 @@ const handleToggleConfirm = async () => {
 const handleToggleCancel = () => {
   confirmOpen.value = false;
   studentToToggle.value = null;
+};
+
+const onFaceRegistered = async (item: Student) => {
+  layoutRef.value?.reset();
+  // Recargar el estudiante actualizado
+  const res = await getStudentById(item._id);
+  if (res.success) {
+    currentStudent.value = res.data;
+  }
 };
 </script>

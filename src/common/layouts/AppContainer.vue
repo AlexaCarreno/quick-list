@@ -40,9 +40,9 @@
         }"
       >
         <!-- 🔁 Aquí se inyectarán las vistas de tus rutas hijas -->
-        <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component, route }">
           <Transition name="fade" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component" :key="route.fullPath" />
           </Transition>
         </router-view>
       </div>
