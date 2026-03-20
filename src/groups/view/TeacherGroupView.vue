@@ -28,7 +28,6 @@
         "
       >
         <div class="flex items-center gap-4 min-w-0">
-          <!-- Color del grupo -->
           <div
             class="size-12 rounded-full flex-shrink-0"
             :style="{ backgroundColor: group.color }"
@@ -36,13 +35,19 @@
           <div class="min-w-0">
             <p class="text-white font-semibold truncate">{{ group.subject }}</p>
             <p class="text-slate-400 text-sm">{{ group.referenceCode }}</p>
-            <p class="text-slate-500 text-xs mt-1">
-              {{
-                group.schedules.length > 0
-                  ? `${translateDay(group.schedules[0].dayOfWeek)} ${group.schedules[0].startTime} - ${group.schedules[0].endTime}`
-                  : "Sin horario"
-              }}
-            </p>
+            <div class="flex items-center gap-2 mt-1 flex-wrap">
+              <p class="text-slate-500 text-xs">
+                {{
+                  group.schedules.length > 0
+                    ? `${translateDay(group.schedules[0].dayOfWeek)} ${group.schedules[0].startTime} - ${group.schedules[0].endTime}`
+                    : "Sin horario"
+                }}
+              </p>
+              <span class="text-slate-600 text-xs">·</span>
+              <p class="text-slate-500 text-xs">
+                {{ (group as any).totalStudents ?? 0 }} estudiantes
+              </p>
+            </div>
           </div>
         </div>
         <div class="flex-shrink-0 text-slate-400">›</div>
@@ -81,9 +86,6 @@ const translateDay = (day: string) => {
   return map[day] ?? day;
 };
 
-onMounted(() => {
-  console.log('TeacherGroupView mounted');
-  fetchMyGroups()
-});
+onMounted(() => fetchMyGroups());
 onActivated(() => fetchMyGroups());
 </script>

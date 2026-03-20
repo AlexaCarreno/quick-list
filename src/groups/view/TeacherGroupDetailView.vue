@@ -15,20 +15,34 @@
         <!-- Título -->
         <div v-if="group" class="flex items-center gap-3 mb-4">
           <div
-            class="size-8 rounded-full flex-shrink-0"
+            class="size-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm"
             :style="{ backgroundColor: group.color }"
-          />
-          <div>
-            <h1 class="text-lg font-semibold text-white">
-              {{ group.subject }} {{ group.referenceCode }}
+          >
+            {{ group.referenceCode.slice(0, 2) }}
+          </div>
+          <div class="min-w-0 flex-1">
+            <h1 class="text-lg font-semibold text-white truncate">
+              {{ group.subject }}
+              <span class="text-slate-400 font-normal">{{
+                group.referenceCode
+              }}</span>
             </h1>
-            <p class="text-xs text-slate-400">
-              {{ group.schedules.length }} horario(s) · {{ group.period }}
-            </p>
+            <div class="flex items-center gap-3 mt-0.5 flex-wrap">
+              <p class="text-xs text-slate-400">
+                {{ group.schedules.length }} horario(s) · {{ group.period }}
+              </p>
+              <span class="text-slate-600 text-xs">·</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-semibold text-white">{{
+                  (group as any).totalStudents ?? 0
+                }}</span>
+                <span class="text-xs text-slate-400">estudiantes</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Skeleton -->
+        <!-- Skeleton título -->
         <div v-else class="flex items-center gap-3 mb-4">
           <div class="size-8 rounded-full bg-slate-700 animate-pulse" />
           <div class="h-6 w-64 bg-slate-700 rounded animate-pulse" />
@@ -37,12 +51,12 @@
         <!-- Sesión abierta -->
         <div
           v-if="openSession"
-          class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-2"
+          class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-3"
         >
           <div class="flex items-center gap-2 mb-2">
             <span class="size-2 rounded-full bg-amber-400 animate-pulse" />
             <p class="text-sm font-medium text-amber-400">
-              Sesión abierta sin cerrar
+              Sesión abierta, sin finalizar
             </p>
           </div>
           <p class="text-xs text-slate-400 mb-3">
@@ -78,189 +92,391 @@
           </div>
         </div>
 
-        <!-- Botón tomar asistencia (solo si no hay sesión abierta) -->
+        <!-- Botón tomar asistencia -->
         <button
           v-else-if="group?.status === 'active'"
-          class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-medium transition flex items-center gap-2"
+          class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded text-sm font-medium transition flex items-center gap-2 mb-3"
           @click="openStartModal"
         >
           📋 Tomar Asistencia
         </button>
+
+        <!-- Tabs -->
+        <div class="flex gap-1 border-b border-slate-700/50">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            class="px-4 py-2 text-sm font-medium transition border-b-2 -mb-px"
+            :class="
+              activeTab === tab.key
+                ? 'border-blue-500 text-blue-400'
+                : 'border-transparent text-slate-400 hover:text-white'
+            "
+            @click="activeTab = tab.key"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
 
-      <!-- Lista de sesiones -->
-      <div class="flex-1 min-h-0 overflow-auto">
-        <!-- Loading -->
-        <div v-if="loading" class="space-y-3">
-          <div
-            v-for="i in 3"
-            :key="i"
-            class="h-16 bg-slate-800 rounded-xl animate-pulse"
-          />
-        </div>
-
-        <template v-else-if="sessions.length > 0">
-          <!-- Tabla desktop -->
-          <div class="hidden md:block">
-            <table class="w-full text-sm">
-              <thead>
-                <tr
-                  class="border-b border-slate-700 text-slate-400 text-xs uppercase"
-                >
-                  <th class="text-left py-3 px-4">Fecha</th>
-                  <th class="text-left py-3 px-4">Hora</th>
-                  <th class="text-left py-3 px-4">AM/PM</th>
-                  <th class="text-left py-3 px-4">Asistencia</th>
-                  <th class="text-left py-3 px-4">Estado</th>
-                  <th class="text-left py-3 px-4">Opciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="s in sessions"
-                  :key="s._id"
-                  class="border-b border-slate-800 hover:bg-slate-800/30 transition"
-                >
-                  <td class="py-3 px-4 text-slate-300">
-                    {{ formatDate(s.date) }}
-                  </td>
-                  <td class="py-3 px-4 text-slate-300">
-                    {{ s.startTime }} - {{ s.endTime }}
-                  </td>
-                  <td class="py-3 px-4 text-slate-300">{{ s.shift }}</td>
-                  <td class="py-3 px-4">
-                    <div class="flex items-center gap-2">
-                      <div class="w-24 bg-slate-700 rounded-full h-1.5">
-                        <div
-                          class="h-1.5 rounded-full bg-emerald-400"
-                          :style="{
-                            width: `${s.totalExpected > 0 ? (s.totalPresent / s.totalExpected) * 100 : 0}%`,
-                          }"
-                        />
-                      </div>
-                      <span class="text-xs text-slate-400"
-                        >{{ s.totalPresent }}/{{ s.totalExpected }}</span
-                      >
-                    </div>
-                  </td>
-                  <td class="py-3 px-4">
-                    <span
-                      class="text-xs px-2 py-0.5 rounded-full"
-                      :class="
-                        s.status === 'open'
-                          ? 'bg-emerald-500/10 text-emerald-400'
-                          : 'bg-slate-700 text-slate-400'
-                      "
-                    >
-                      {{ s.status === "open" ? "Abierta" : "Cerrada" }}
-                    </span>
-                  </td>
-                  <td class="py-3 px-4">
-                    <button
-                      class="text-blue-400 hover:text-blue-300 text-xs transition"
-                      @click="
-                        router.push({
-                          name: 'attendance-detail',
-                          params: { id: s._id },
-                        })
-                      "
-                    >
-                      Ver Detalle
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+      <!-- TAB: Asistencias -->
+      <template v-if="activeTab === 'attendance'">
+        <div class="flex-1 min-h-0 overflow-auto">
+          <div v-if="loading" class="space-y-3">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-16 bg-slate-800 rounded-xl animate-pulse"
+            />
           </div>
 
-          <!-- Mobile cards -->
-          <div class="md:hidden space-y-3">
-            <div
-              v-for="s in sessions"
-              :key="s._id"
-              class="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50"
-            >
-              <div class="flex items-center justify-between mb-2">
-                <p class="text-sm font-medium text-white">
-                  {{ formatDate(s.date) }}
+          <template v-else-if="sessions.length > 0">
+            <!-- Tabla desktop -->
+            <div class="hidden md:block">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr
+                    class="border-b border-slate-700 text-slate-400 text-xs uppercase"
+                  >
+                    <th class="text-left py-3 px-4">Fecha</th>
+                    <th class="text-left py-3 px-4">Hora</th>
+                    <th class="text-left py-3 px-4">AM/PM</th>
+                    <th class="text-left py-3 px-4">Asistencia</th>
+                    <th class="text-left py-3 px-4">Estado</th>
+                    <th class="text-left py-3 px-4">Opciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="s in sessions"
+                    :key="s._id"
+                    class="border-b border-slate-800 hover:bg-slate-800/30 transition"
+                  >
+                    <td class="py-3 px-4 text-slate-300">
+                      {{ formatDate(s.date) }}
+                    </td>
+                    <td class="py-3 px-4 text-slate-300">
+                      {{ s.startTime }} - {{ s.endTime }}
+                    </td>
+                    <td class="py-3 px-4 text-slate-300">{{ s.shift }}</td>
+                    <td class="py-3 px-4">
+                      <div class="flex items-center gap-2">
+                        <div class="w-24 bg-slate-700 rounded-full h-1.5">
+                          <div
+                            class="h-1.5 rounded-full bg-emerald-400"
+                            :style="{
+                              width: `${s.totalExpected > 0 ? (s.totalPresent / s.totalExpected) * 100 : 0}%`,
+                            }"
+                          />
+                        </div>
+                        <span class="text-xs text-slate-400"
+                          >{{ s.totalPresent }}/{{ s.totalExpected }}</span
+                        >
+                      </div>
+                    </td>
+                    <td class="py-3 px-4">
+                      <span
+                        class="text-xs px-2 py-0.5 rounded-full"
+                        :class="
+                          s.status === 'open'
+                            ? 'bg-emerald-500/10 text-emerald-400'
+                            : 'bg-slate-700 text-slate-400'
+                        "
+                      >
+                        {{ s.status === "open" ? "Abierta" : "Cerrada" }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4">
+                      <button
+                        class="text-blue-400 hover:text-blue-300 text-xs transition"
+                        @click="
+                          router.push({
+                            name: 'attendance-detail',
+                            params: { id: s._id },
+                          })
+                        "
+                      >
+                        Ver Detalle
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile cards asistencias -->
+            <div class="md:hidden space-y-3">
+              <div
+                v-for="s in sessions"
+                :key="s._id"
+                class="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50"
+              >
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm font-medium text-white">
+                    {{ formatDate(s.date) }}
+                  </p>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded-full"
+                    :class="
+                      s.status === 'open'
+                        ? 'bg-emerald-500/10 text-emerald-400'
+                        : 'bg-slate-700 text-slate-400'
+                    "
+                  >
+                    {{ s.status === "open" ? "Abierta" : "Cerrada" }}
+                  </span>
+                </div>
+                <p class="text-xs text-slate-400">
+                  {{ s.startTime }} - {{ s.endTime }} · {{ s.shift }}
                 </p>
-                <span
-                  class="text-xs px-2 py-0.5 rounded-full"
-                  :class="
-                    s.status === 'open'
-                      ? 'bg-emerald-500/10 text-emerald-400'
-                      : 'bg-slate-700 text-slate-400'
+                <div class="flex items-center gap-2 mt-2">
+                  <div class="flex-1 bg-slate-700 rounded-full h-1.5">
+                    <div
+                      class="h-1.5 rounded-full bg-emerald-400"
+                      :style="{
+                        width: `${s.totalExpected > 0 ? (s.totalPresent / s.totalExpected) * 100 : 0}%`,
+                      }"
+                    />
+                  </div>
+                  <span class="text-xs text-slate-400"
+                    >{{ s.totalPresent }}/{{ s.totalExpected }}</span
+                  >
+                </div>
+                <button
+                  class="mt-3 text-blue-400 hover:text-blue-300 text-xs"
+                  @click="
+                    router.push({
+                      name: 'attendance-detail',
+                      params: { id: s._id },
+                    })
                   "
                 >
-                  {{ s.status === "open" ? "Abierta" : "Cerrada" }}
-                </span>
+                  Ver Detalle →
+                </button>
               </div>
-              <p class="text-xs text-slate-400">
-                {{ s.startTime }} - {{ s.endTime }} · {{ s.shift }}
-              </p>
-              <div class="flex items-center gap-2 mt-2">
-                <div class="flex-1 bg-slate-700 rounded-full h-1.5">
-                  <div
-                    class="h-1.5 rounded-full bg-emerald-400"
-                    :style="{
-                      width: `${s.totalExpected > 0 ? (s.totalPresent / s.totalExpected) * 100 : 0}%`,
-                    }"
-                  />
-                </div>
-                <span class="text-xs text-slate-400"
-                  >{{ s.totalPresent }}/{{ s.totalExpected }}</span
-                >
-              </div>
-              <button
-                class="mt-3 text-blue-400 hover:text-blue-300 text-xs"
-                @click="
-                  router.push({
-                    name: 'attendance-detail',
-                    params: { id: s._id },
-                  })
-                "
-              >
-                Ver Detalle →
-              </button>
             </div>
+          </template>
+
+          <!-- Empty asistencias -->
+          <div
+            v-else
+            class="flex flex-col items-center justify-center h-full text-slate-500"
+          >
+            <p class="text-4xl mb-3">📋</p>
+            <p class="text-sm font-medium">Sin sesiones registradas</p>
+            <p class="text-xs mt-1">Presiona "Tomar Asistencia" para iniciar</p>
           </div>
-        </template>
+        </div>
 
-        <!-- Empty -->
+        <!-- Paginación asistencias -->
         <div
-          v-else
-          class="flex flex-col items-center justify-center h-full text-slate-500"
+          v-if="total > 0"
+          class="flex items-center justify-between mt-4 flex-shrink-0 text-sm text-slate-400"
         >
-          <p class="text-4xl mb-3">📋</p>
-          <p class="text-sm font-medium">Sin sesiones registradas</p>
-          <p class="text-xs mt-1">Presiona "Tomar Asistencia" para iniciar</p>
+          <span>{{ total }} sesión{{ total !== 1 ? "es" : "" }}</span>
+          <div class="flex items-center gap-2">
+            <button
+              class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 transition"
+              :disabled="offset === 0"
+              @click="prevPage"
+            >
+              ‹
+            </button>
+            <span>{{ currentPage }} / {{ totalPages }}</span>
+            <button
+              class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 transition"
+              :disabled="offset + limit >= total"
+              @click="nextPage"
+            >
+              ›
+            </button>
+          </div>
         </div>
-      </div>
+      </template>
 
-      <!-- Paginación -->
-      <div
-        v-if="total > 0"
-        class="flex items-center justify-between mt-4 flex-shrink-0 text-sm text-slate-400"
-      >
-        <span>{{ total }} sesión{{ total !== 1 ? "es" : "" }}</span>
-        <div class="flex items-center gap-2">
-          <button
-            class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 transition"
-            :disabled="offset === 0"
-            @click="prevPage"
+      <!-- TAB: Estudiantes -->
+      <template v-else-if="activeTab === 'students'">
+        <div class="flex-1 min-h-0 overflow-auto">
+          <!-- Loading -->
+          <div v-if="loadingStudents" class="space-y-3">
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="h-16 bg-slate-800 rounded-xl animate-pulse"
+            />
+          </div>
+
+          <template v-else-if="groupStudents.length > 0">
+            <!-- Tabla desktop -->
+            <div class="hidden md:block">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr
+                    class="border-b border-slate-700 text-slate-400 text-xs uppercase"
+                  >
+                    <th class="text-left py-3 px-4">Estudiante</th>
+                    <th class="text-left py-3 px-4">Documento</th>
+                    <th class="text-left py-3 px-4">Carrera</th>
+                    <th class="text-left py-3 px-4">Semestre</th>
+                    <th class="text-left py-3 px-4">Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="s in groupStudents"
+                    :key="s._id"
+                    class="border-b border-slate-800 hover:bg-slate-800/30 transition"
+                  >
+                    <td class="py-3 px-4">
+                      <div class="flex items-center gap-3">
+                        <img
+                          :src="
+                            getAvatarUrl(
+                              s.studentId.photo,
+                              s.studentId.name,
+                              s.studentId.lastName,
+                            )
+                          "
+                          class="size-9 rounded-full object-cover bg-slate-700"
+                        />
+                        <div>
+                          <p class="text-white font-medium">
+                            {{ s.studentId.name }} {{ s.studentId.lastName }}
+                          </p>
+                          <p class="text-xs text-slate-400">
+                            {{ s.studentId.email }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3 px-4 text-slate-300">
+                      {{ s.studentId.documentNumber }}
+                    </td>
+                    <td class="py-3 px-4 text-slate-300">
+                      {{ s.studentId.career }}
+                    </td>
+                    <td class="py-3 px-4 text-slate-300">
+                      Semestre {{ s.studentId.semester }}
+                    </td>
+                    <td class="py-3 px-4">
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="size-2 rounded-full"
+                          :class="
+                            s.studentId.state ? 'bg-emerald-500' : 'bg-red-500'
+                          "
+                        />
+                        <span class="text-sm text-slate-300">{{
+                          s.studentId.state ? "Activo" : "Inactivo"
+                        }}</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Mobile cards estudiantes -->
+            <div class="md:hidden space-y-3">
+              <div
+                v-for="s in groupStudents"
+                :key="s._id"
+                class="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50"
+              >
+                <div class="flex items-center gap-3 mb-3">
+                  <img
+                    :src="
+                      getAvatarUrl(
+                        s.studentId.photo,
+                        s.studentId.name,
+                        s.studentId.lastName,
+                      )
+                    "
+                    class="size-10 rounded-full object-cover bg-slate-700 flex-shrink-0"
+                  />
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-white truncate">
+                      {{ s.studentId.name }} {{ s.studentId.lastName }}
+                    </p>
+                    <p class="text-xs text-slate-400 truncate">
+                      {{ s.studentId.email }}
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-1.5 flex-shrink-0">
+                    <span
+                      class="size-2 rounded-full"
+                      :class="
+                        s.studentId.state ? 'bg-emerald-500' : 'bg-red-500'
+                      "
+                    />
+                    <span class="text-xs text-slate-400">{{
+                      s.studentId.state ? "Activo" : "Inactivo"
+                    }}</span>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <p class="text-xs text-slate-500">Documento</p>
+                    <p class="text-xs text-slate-300">
+                      {{ s.studentId.documentNumber }}
+                    </p>
+                  </div>
+                  <div>
+                    <p class="text-xs text-slate-500">Semestre</p>
+                    <p class="text-xs text-slate-300">
+                      Semestre {{ s.studentId.semester }}
+                    </p>
+                  </div>
+                  <div class="col-span-2">
+                    <p class="text-xs text-slate-500">Carrera</p>
+                    <p class="text-xs text-slate-300 truncate">
+                      {{ s.studentId.career }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Empty estudiantes -->
+          <div
+            v-else
+            class="flex flex-col items-center justify-center h-full text-slate-500"
           >
-            ‹
-          </button>
-          <span>{{ currentPage }} / {{ totalPages }}</span>
-          <button
-            class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 transition"
-            :disabled="offset + limit >= total"
-            @click="nextPage"
-          >
-            ›
-          </button>
+            <p class="text-4xl mb-3">👥</p>
+            <p class="text-sm font-medium">Sin estudiantes vinculados</p>
+          </div>
         </div>
-      </div>
+
+        <!-- Paginación estudiantes -->
+        <div
+          v-if="totalGroupStudents > 0"
+          class="flex items-center justify-between mt-4 flex-shrink-0 text-sm text-slate-400"
+        >
+          <span
+            >{{ totalGroupStudents }} estudiante{{
+              totalGroupStudents !== 1 ? "s" : ""
+            }}</span
+          >
+          <div class="flex items-center gap-2">
+            <button
+              class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 transition"
+              :disabled="studentsOffset === 0"
+              @click="prevStudentsPage"
+            >
+              ‹
+            </button>
+            <span>{{ studentsCurrentPage }} / {{ studentsTotalPages }}</span>
+            <button
+              class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 transition"
+              :disabled="studentsOffset + studentsLimit >= totalGroupStudents"
+              @click="nextStudentsPage"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      </template>
     </div>
 
     <!-- Modal iniciar sesión -->
@@ -346,14 +562,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useGroups } from "../composables/useGroups";
 import {
   useAttendance,
   type AttendanceSession,
 } from "../../attendance/composable/useAttendance";
+import { useStudentGroup } from "../composables/useStudentGroup";
 import MyModal from "../../common/components/modals/MyModal.vue";
+import { getAvatarUrl } from "../../common/utils/avatar";
 
 const route = useRoute();
 const router = useRouter();
@@ -369,29 +587,55 @@ const {
   startSession,
   deleteSession,
 } = useAttendance();
+const {
+  students: groupStudents,
+  total: totalGroupStudents,
+  loading: loadingStudents,
+  fetchGroupStudents,
+} = useStudentGroup();
 
+// Tabs
+const tabs = [
+  { key: "attendance", label: "Asistencias" },
+  { key: "students", label: "Estudiantes" },
+];
+const activeTab = ref("attendance");
+
+// Asistencias
 const limit = 10;
 const offset = ref(0);
 const startModalOpen = ref(false);
 const selectedScheduleIndex = ref(0);
 const deleting = ref(false);
 
+// Estudiantes
+const studentsLimit = 10;
+const studentsOffset = ref(0);
+
 const openSession = computed<AttendanceSession | null>(
   () => sessions.value.find((s) => s.status === "open") ?? null,
 );
-
 const currentPage = computed(() => Math.floor(offset.value / limit) + 1);
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / limit)));
 const selectedSchedule = computed(
   () => group.value?.schedules[selectedScheduleIndex.value],
 );
-const studentCount = computed(() =>
-  sessions.value.length > 0 ? sessions.value[0].totalExpected : "?",
+const studentCount = computed(() => (group.value as any)?.totalStudents ?? "?");
+
+const studentsCurrentPage = computed(
+  () => Math.floor(studentsOffset.value / studentsLimit) + 1,
+);
+const studentsTotalPages = computed(() =>
+  Math.max(1, Math.ceil(totalGroupStudents.value / studentsLimit)),
 );
 
-const load = () => {
+const load = () =>
   fetchSessionsByGroup(groupId.value, { limit, offset: offset.value });
-};
+const loadStudents = () =>
+  fetchGroupStudents(groupId.value, {
+    limit: studentsLimit,
+    offset: studentsOffset.value,
+  });
 
 const prevPage = () => {
   offset.value = Math.max(0, offset.value - limit);
@@ -401,6 +645,15 @@ const nextPage = () => {
   offset.value += limit;
   load();
 };
+const prevStudentsPage = () => {
+  studentsOffset.value = Math.max(0, studentsOffset.value - studentsLimit);
+  loadStudents();
+};
+const nextStudentsPage = () => {
+  studentsOffset.value += studentsLimit;
+  loadStudents();
+};
+
 const openStartModal = () => {
   selectedScheduleIndex.value = 0;
   startModalOpen.value = true;
@@ -462,6 +715,13 @@ const handleStartManual = async () => {
     router.push({ name: "attendance-detail", params: { id: session._id } });
   }
 };
+
+// Cargar estudiantes cuando se cambia al tab
+watch(activeTab, (tab) => {
+  if (tab === "students" && groupStudents.value.length === 0) {
+    loadStudents();
+  }
+});
 
 const formatDate = (date: string) =>
   new Date(date).toLocaleDateString("es-CO", {

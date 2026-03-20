@@ -111,7 +111,7 @@
 
     <!-- COLUMNA: estudiantes -->
     <template #estudiantes="{ item }">
-      <p class="text-sm text-slate-300">{{ item.studentCount ?? 0 }}</p>
+      <p class="text-sm text-slate-300">{{ item.totalStudents ?? 0 }}</p>
     </template>
 
     <!-- COLUMNA: estado -->

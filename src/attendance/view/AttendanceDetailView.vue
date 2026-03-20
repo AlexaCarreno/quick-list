@@ -4,7 +4,7 @@
     <div class="flex-shrink-0 mb-4">
       <button
         class="flex items-center gap-1 text-sm text-slate-400 hover:text-white transition mb-3"
-        @click="router.back()"
+        @click="handleBack"
       >
         ‹ volver
       </button>
@@ -393,4 +393,11 @@ onMounted(() => {
   fetchSessionById(attendanceId.value);
   load();
 });
+
+const handleBack = () => {
+  router.push({
+    name: "teacher-group-session",
+    params: { id: session.value?.groupId },
+  });
+};
 </script>

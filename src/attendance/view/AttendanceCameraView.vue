@@ -37,14 +37,9 @@
         <!-- Finalizar -->
         <button
           class="hidden md:flex bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 disabled:opacity-50"
-          :disabled="closing"
           @click="handleFinish"
         >
-          <span
-            v-if="closing"
-            class="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-          />
-          ✓ Finalizar y Guardar
+          ✓ Ver resumen de sesión
         </button>
       </div>
     </div>
@@ -166,14 +161,9 @@
         >
           <button
             class="w-full bg-emerald-600 hover:bg-emerald-500 px-4 py-3 rounded-xl text-sm font-medium transition disabled:opacity-50 flex items-center justify-center gap-2"
-            :disabled="closing"
             @click="handleFinish"
           >
-            <span
-              v-if="closing"
-              class="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-            />
-            ✓ Finalizar y Guardar Sesión
+            ✓ Ver resumen de sesión
           </button>
         </div>
       </div>
@@ -196,7 +186,6 @@ const {
   closing,
   fetchSessionById,
   fetchStudents,
-  closeSession,
   recognize,
 } = useAttendance();
 
@@ -300,9 +289,11 @@ const handleCancel = async () => {
 };
 
 const handleFinish = async () => {
-  await closeSession(attendanceId.value);
   stopAll();
-  router.back();
+  router.push({
+    name: "attendance-detail",
+    params: { id: attendanceId.value },
+  });
 };
 
 const stopAll = () => {

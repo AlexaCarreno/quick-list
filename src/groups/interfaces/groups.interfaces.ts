@@ -32,6 +32,7 @@ export interface Group {
     lastName: string;
     email: string;
   } | null;
+  totalStudents?: number;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -42,7 +43,6 @@ export const groupFilterMap = {
   referenceCode: "referenceCode",
   period: "period",
 } as const;
-
 
 export type TeacherOption = {
   _id: string;

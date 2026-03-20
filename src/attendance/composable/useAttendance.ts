@@ -198,14 +198,17 @@ export const useAttendance = () => {
   const recognize = async (attendanceId: string, imageBlob: Blob) => {
     const res = await recognizeFace(attendanceId, imageBlob);
     if (!res.success) return null;
-    if (res.data.recognized) {
-      // Actualizar localmente el estudiante reconocido
-      const record = students.value.find(
-        (s) => s.studentId._id === res.data.student_id,
-      );
-      if (record && record.status === "absent") {
-        record.status = "present";
-        record.method = "facial";
+
+    if (res.data.recognized && res.data.student_ids?.length > 0) {
+      // Actualizar localmente todos los estudiantes reconocidos
+      for (const studentId of res.data.student_ids) {
+        const record = students.value.find(
+          (s) => s.studentId._id === studentId,
+        );
+        if (record && record.status === "absent") {
+          record.status = "present";
+          record.method = "facial";
+        }
       }
     }
     return res.data;
