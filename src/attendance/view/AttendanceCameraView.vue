@@ -183,7 +183,6 @@ const attendanceId = computed(() => route.params.attendanceId as string);
 const {
   session,
   students,
-  closing,
   fetchSessionById,
   fetchStudents,
   recognize,

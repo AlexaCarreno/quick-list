@@ -66,12 +66,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { useGroups } from "../composables/useGroups";
+import GroupAttendanceTab from "../components/GroupAttendanceTab.vue";
 import GroupInfoTab from "../components/GroupInfoTab.vue";
 import GroupStudentsTab from "../components/GroupStudentsTab.vue";
-import GroupAttendanceTab from "../components/GroupAttendanceTab.vue";
+import { useGroups } from "../composables/useGroups";
 
 const route = useRoute();
 const router = useRouter();
