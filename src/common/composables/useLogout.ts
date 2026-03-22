@@ -15,7 +15,7 @@ export const useLogout = () => {
     } catch (error) {
       console.error("Error en logout: ", error);
     } finally {
-      authStore.clearAccesstoken();
+      authStore.clearAccessToken();
       localStorage.removeItem("auth");
       usePermissionStore().clear();
 

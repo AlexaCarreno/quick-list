@@ -105,89 +105,49 @@ const router = createRouter({
   routes,
 });
 
-// Variable para evitar múltiples navegaciones simultáneas
-let isNavigating = false;
-
 router.beforeEach(async (to, _from, next) => {
-  // Si ya hay una navegación en progreso, esperar
-  if (isNavigating) {
-    console.log("⏳ Navegación en progreso, esperando...");
-    await new Promise((resolve) => setTimeout(resolve, 100));
+  const authStore = useAuthStore();
+  const permissionStore = usePermissionStore();
+  const isPublic = to.meta.public === true;
+
+  // Inicializar auth si aún no se ha hecho
+  if (!authStore.isInitialized) {
+    await authStore.initialize();
   }
 
-  isNavigating = true;
+  if (isPublic) return next();
 
-  try {
-    const authStore = useAuthStore();
-    const permissionStore = usePermissionStore();
-
-    // Esperar hidratación real
-    let attempts = 0;
-    while (!authStore.hydrated && attempts < 50) {
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      attempts++;
-    }
-
-    let isAuthenticated = !!authStore.accessToken;
-    const isPublic = to.meta.public === true;
-
-    // Si no hay token pero no es ruta pública, intentar refrescar
-    if (!isAuthenticated && !isPublic) {
-      try {
-        const { tryRefreshToken } = await import("../api/api-client");
-        const refreshed = await tryRefreshToken();
-
-        if (refreshed) {
-          isAuthenticated = true;
-        } else {
-          console.log("🔒 No autenticado");
-          return next({ name: "login" });
-        }
-      } catch (error) {
-        console.error("❌ Error refresh:", error);
-        return next({ name: "login" });
-      }
-    }
-
-    if (isAuthenticated && !permissionStore.loaded) {
-      try {
-        await permissionStore.loadPermissions();
-      } catch (error) {
-        console.error("❌ Error al cargar permisos:", error);
-
-        authStore.clearAccesstoken();
-        permissionStore.clear();
-        return next({ name: "login" });
-      }
-    }
-
-    if (isAuthenticated && to.name === "root") {
-      const firstAllowed = NAVIGATION_ITEMS.find((item) =>
-        permissionStore.can(item.resource, item.action),
-      );
-
-      if (firstAllowed) {
-        return next({ name: firstAllowed.name });
-      }
-
-      return next("/not-found");
-    }
-
-    if (to.meta.resource && to.meta.action) {
-      const allowed = permissionStore.can(
-        to.meta.resource as string,
-        to.meta.action as string,
-      );
-      if (!allowed) {
-        return next("/not-found");
-      }
-    }
-
-    next();
-  } finally {
-    // 🆕 Liberar el lock después de completar
-    isNavigating = false;
+  if (!authStore.accessToken) {
+    return next({ name: "login" });
   }
+
+  if (!permissionStore.loaded) {
+    try {
+      await permissionStore.loadPermissions();
+    } catch {
+      authStore.clearAccessToken();
+      return next({ name: "login" });
+    }
+  }
+
+  if (to.name === "root") {
+    const firstAllowed = NAVIGATION_ITEMS.find((item) =>
+      permissionStore.can(item.resource, item.action),
+    );
+    return firstAllowed
+      ? next({ name: firstAllowed.name })
+      : next("/not-found");
+  }
+
+  if (to.meta.resource && to.meta.action) {
+    const allowed = permissionStore.can(
+      to.meta.resource as string,
+      to.meta.action as string,
+    );
+    if (!allowed) return next("/not-found");
+  }
+
+  next();
 });
 
 export default router;

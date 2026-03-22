@@ -77,7 +77,10 @@ const route = useRoute();
 const router = useRouter();
 
 const groupId = computed(() => route.params.id as string);
-const activeTab = ref<"info" | "students" | "attendance">("info");
+const activeTab = computed({
+  get: () => (route.query.tab as string) || "info",
+  set: (val) => router.replace({ query: { ...route.query, tab: val } }),
+});
 
 const tabs: { key: "info" | "students" | "attendance"; label: string }[] = [
   { key: "info", label: "Info" },

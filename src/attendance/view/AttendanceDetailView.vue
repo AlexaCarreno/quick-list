@@ -295,10 +295,13 @@ import {
   useAttendance,
   type StudentAttendanceRecord,
 } from "../composable/useAttendance";
+import { usePermissionStore } from "../../common/stores/permissionsStore";
 
 const route = useRoute();
 const router = useRouter();
 const attendanceId = computed(() => route.params.id as string);
+
+const permissionStore = usePermissionStore();
 
 const {
   session,
@@ -395,9 +398,17 @@ onMounted(() => {
 });
 
 const handleBack = () => {
-  router.push({
-    name: "teacher-group-session",
-    params: { id: session.value?.groupId },
-  });
+  if (permissionStore.hasRole("teacher")) {
+    router.push({
+      name: "teacher-group-session",
+      params: { id: session.value?.groupId },
+    });
+  } else {
+    router.push({
+      name: "group-detail",
+      params: { id: session.value?.groupId },
+      query: { tab: "attendance" },
+    });
+  }
 };
 </script>
