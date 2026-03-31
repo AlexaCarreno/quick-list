@@ -180,13 +180,8 @@ const route = useRoute();
 const router = useRouter();
 const attendanceId = computed(() => route.params.attendanceId as string);
 
-const {
-  session,
-  students,
-  fetchSessionById,
-  fetchStudents,
-  recognize,
-} = useAttendance();
+const { session, students, fetchSessionById, fetchStudents, recognize } =
+  useAttendance();
 
 // Refs de cámara
 const videoRef = ref<HTMLVideoElement | null>(null);

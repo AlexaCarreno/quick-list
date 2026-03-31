@@ -1,10 +1,27 @@
 <template>
   <div class="flex flex-col gap-3 mb-3">
-    <!-- Fila: filtro + buscador + botón acción -->
-    <div class="flex items-center gap-2">
+    <!-- Mobile: select en su propia fila -->
+    <div class="flex md:hidden items-center gap-2">
       <select
         v-model="localFilter"
         class="bg-slate-800 border border-slate-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-500 flex-shrink-0"
+      >
+        <option
+          v-for="option in filters"
+          :key="option.value"
+          :value="option.value"
+        >
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Fila: input + botón + acción (desktop también tiene el select) -->
+    <div class="flex items-center gap-2">
+      <!-- Select solo en desktop -->
+      <select
+        v-model="localFilter"
+        class="hidden md:block bg-slate-800 border border-slate-700 text-sm rounded-lg px-3 py-2 focus:ring-1 focus:ring-blue-500 flex-shrink-0"
       >
         <option
           v-for="option in filters"

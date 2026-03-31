@@ -3,19 +3,17 @@
     class="flex flex-col h-full min-h-0 gap-3 md:gap-4"
     :class="$attrs.class"
   >
-    <!-- Header -->
-    <div class="flex-shrink-0">
+    <!-- Desktop: header fijo + tabla con scroll -->
+    <div class="hidden md:block flex-shrink-0">
       <TableHeader
         v-model:search="search"
         v-model:filter="filter"
         :filters="filters"
       >
         <template #actions>
-          <!-- El padre inyecta su botón de acción (ej: "Nuevo Teacher") -->
           <slot name="header-actions" />
         </template>
       </TableHeader>
-
       <TableMeta
         v-model:limit="limit"
         :page="page"
@@ -24,8 +22,8 @@
       />
     </div>
 
-    <!-- TABLE SCROLL -->
-    <div class="flex-1 min-h-0 overflow-auto">
+    <!-- Desktop: tabla con scroll -->
+    <div class="hidden md:block flex-1 min-h-0 overflow-auto">
       <DataList
         :items="items"
         :columns="columns"
@@ -33,16 +31,45 @@
         :id-key="idKey"
         @row-click="onRowClick"
       >
-        <!-- Mobile card: el padre define cómo se ve la card mobile -->
-        <template #mobile="{ item }">
-          <slot name="mobile" :item="item" :open-detail="openDetail" />
-        </template>
-
-        <!-- Re-exponer todos los slots de columnas dinámicamente -->
         <template v-for="col in columns" #[col.key]="{ item }" :key="col.key">
           <slot :name="col.key" :item="item" />
         </template>
       </DataList>
+    </div>
+
+    <!-- Mobile: todo hace scroll junto -->
+    <div class="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+      <div class="flex flex-col gap-3">
+        <TableHeader
+          v-model:search="search"
+          v-model:filter="filter"
+          :filters="filters"
+        >
+          <template #actions>
+            <slot name="header-actions" />
+          </template>
+        </TableHeader>
+        <TableMeta
+          v-model:limit="limit"
+          :page="page"
+          :total="total"
+          @update:page="page = $event"
+        />
+        <DataList
+          :items="items"
+          :columns="columns"
+          :grid-template="gridTemplate"
+          :id-key="idKey"
+          @row-click="onRowClick"
+        >
+          <template #mobile="{ item }">
+            <slot name="mobile" :item="item" :open-detail="openDetail" />
+          </template>
+          <template v-for="col in columns" #[col.key]="{ item }" :key="col.key">
+            <slot :name="col.key" :item="item" />
+          </template>
+        </DataList>
+      </div>
     </div>
   </div>
 

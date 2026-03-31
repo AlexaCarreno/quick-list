@@ -8,7 +8,7 @@
       :key="item.label"
       :to="item.path"
       class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-colors"
-      active-class="bg-blue-600 hover:bg-blue-700"
+      :class="isActive(item) ? 'bg-blue-600 hover:bg-blue-700' : ''"
       @click="$emit('menuClick')"
     >
       <div
@@ -28,6 +28,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRoute } from "vue-router";
 import type { NavigationItem } from "../../../config/navigation.config";
 
 defineProps<{
@@ -35,4 +36,20 @@ defineProps<{
   computedOpen: boolean;
   isMobile: boolean;
 }>();
+
+const route = useRoute();
+
+const isActive = (item: NavigationItem): boolean => {
+  // Coincidencia exacta o ruta hija directa
+  if (route.path === item.path || route.path.startsWith(item.path + "/")) {
+    return true;
+  }
+
+  // Rutas de asistencia pertenecen al módulo de grupos
+  if (item.path === "/groups" && route.path.startsWith("/attendance/")) {
+    return true;
+  }
+
+  return false;
+};
 </script>

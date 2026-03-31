@@ -7,7 +7,7 @@ export interface NavigationItem {
   resource: string;
   action: string;
   showInMenu?: boolean;
-  roles?: string[]; // ← agregar esto
+  roles?: string[];
   component: Record<string, () => Promise<Component>>;
 }
 
@@ -56,7 +56,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     name: "attendance",
     resource: "attendance",
     action: "access",
-    showInMenu: true,
+    showInMenu: false,
     roles: ["admin"],
     component: {
       admin: () => import("../../attendance/view/AttendanceView.vue"),

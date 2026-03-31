@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full min-h-0 pl-5 pr-5 sm:pt-3 md:p-5 text-white">
+  <div class="flex flex-col h-full min-h-0 overflow-x-hidden pl-5 pr-5 sm:pt-3 md:p-5 text-white">
     <!-- Tabs -->
     <div class="flex gap-2 mb-2 flex-shrink-0">
       <button
