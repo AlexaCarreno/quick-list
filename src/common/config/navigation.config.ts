@@ -62,4 +62,16 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
       admin: () => import("../../attendance/view/AttendanceView.vue"),
     },
   },
+  {
+    label: "Reportes",
+    path: "/reports",
+    name: "reports",
+    resource: "reports",
+    action: "access",
+    showInMenu: true,
+    roles: ["admin"],
+    component: {
+      admin: () => import("../../reports/views/ReportsView.vue"),
+    },
+  },
 ];
