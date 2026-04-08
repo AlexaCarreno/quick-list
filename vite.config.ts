@@ -18,7 +18,7 @@ export default defineConfig({
         enabled: false,
       },
       manifest: {
-        name: "PWA-test",
+        name: "QuickList",
         short_name: "QuickList",
         description: "App para toma se asistencia",
         theme_color: "#2b2c30ff",

@@ -72,7 +72,7 @@
           <input
             v-model="form.name"
             type="text"
-            placeholder="Ej: Kenia"
+            placeholder="Ej: Angie"
             :class="inputClass(errors.name)"
             @blur="validateField('name')"
           />
@@ -82,7 +82,7 @@
           <input
             v-model="form.lastName"
             type="text"
-            placeholder="Ej: Luengas"
+            placeholder="Ej: Carreño"
             :class="inputClass(errors.lastName)"
             @blur="validateField('lastName')"
           />
@@ -94,7 +94,7 @@
         <input
           v-model="form.email"
           type="email"
-          placeholder="Ej: kenia@gmail.com"
+          placeholder="Ej: angie@gmail.com"
           :class="inputClass(errors.email)"
           @blur="validateField('email')"
         />
