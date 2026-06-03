@@ -14,7 +14,7 @@ const doRefresh = async (): Promise<boolean> => {
     if (!res.ok) return false;
 
     const json = await res.json().catch(() => null);
-    if (!json?.data?.accessToken) return false;
+    if (!json?.data?.accessToken) return false;   
 
     authStore.setAccessToken(json.data.accessToken);
     return true;
